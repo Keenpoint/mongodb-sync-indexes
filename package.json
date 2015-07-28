@@ -2,7 +2,7 @@
   "name": "mongodb-sync-indexes",
   "version": "1.0.0",
   "description": "Synchronize the most relevant properties of both an array of indexes (objects in index format) and the indexes of a mongodb database",
-  "main": "sync-indexes.js",
+  "main": "syncIndexes.js",
   "directories": {
     "test": "test"
   },
@@ -27,5 +27,8 @@
   "dependencies": {
     "async": "^1.4.0",
     "mongodb": "^2.0.39"
+  },
+  "devDependencies": {
+    "mocha": "^2.2.5"
   }
 }

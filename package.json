@@ -1,13 +1,17 @@
 {
   "name": "mongodb-sync-indexes",
   "version": "1.0.0",
+  "author": "Danilo Augusto <daniloaugusto.ita16@gmail.com>",
+  "contributors": [
+    {"name": "Benoit Richert", "email": "github@natura-rerum.com"}
+  ],
   "description": "Synchronize the most relevant properties of both an array of indexes (objects in index format) and the indexes of a mongodb database",
   "main": "syncIndexes.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "mocha test/test"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -18,12 +22,10 @@
     "index",
     "mongodb"
   ],
-  "author": "Danilo Augusto",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Keenpoint/mongodb-sync-indexes/issues"
   },
-  "homepage": "https://github.com/Keenpoint/mongodb-sync-indexes#readme",
   "dependencies": {
     "async": "^1.4.0",
     "lodash": "^3.10.0",

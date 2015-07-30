@@ -1,13 +1,14 @@
 [
   {
     "key": {
-      "new_key": 1
+      "newKey": 1
     },
-    "name": "new_key_1"
+    "name": "differentName",
+    "unique": true
   },
   {
     "key": {
-      "new_key": -1
+      "newKey": -1
     }
   }
 ]

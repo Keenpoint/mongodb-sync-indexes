@@ -24,25 +24,38 @@ describe("Check sync between first array and collection.", function() {
 
             var collection = db.collection("us_economic_assistance");
 
-            collection.dropIndexes(function(err) {
-                assert.equal(err, null);
-
-                collection.createIndex({country_name: 1}, function(err, indexName) {
-                    assert.equal(err, null);
-
-                    collection.indexes(function(err, indexes) {
-                        assert.equal(err, null);
-
-                        console.log("- Collection has indexes: " + JSON.stringify(_.pluck(indexes, "key")));
-                        console.log("- Array has indexes: " + JSON.stringify(_.pluck(arrayOfIndexes1, "key")));
-                        console.log();
-
-                        syncIndexes(arrayOfIndexes1, collection, "", done);
-                    });
-
+            async.series(
+                [
+                    function(callback) {
+                        db.createCollection("us_economic_assistance", function(err) {
+                            callback(err);
+                        });
+                    },
+                    function(callback) {
+                        collection.dropIndexes(function(err) {
+                            callback(err);
+                        });
+                    },
+                    function(callback) {
+                        collection.createIndex({country_name: 1}, function(err) {
+                            callback(err);
+                        });
+                    },
+                    function(callback) {
+                        collection.indexes(function(err, indexes) {
+                            if(!err) {
+                                console.log("- Collection has indexes: " + JSON.stringify(_.pluck(indexes, "key")));
+                                console.log("- Array has indexes: " + JSON.stringify(_.pluck(arrayOfIndexes1, "key")));
+                                console.log();
+                            }
+                            syncIndexes(arrayOfIndexes1, collection, "", done);
+                            callback(err);
+                        });
+                    }
+                ],
+                function(err){
+                    //...
                 });
-
-            });
 
         });
 

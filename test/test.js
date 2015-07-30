@@ -1,5 +1,3 @@
-"use strict";
-
 var MongoClient = require("mongodb").MongoClient,
     syncIndexes = require("../syncIndexes"),
     assert = require("assert"),

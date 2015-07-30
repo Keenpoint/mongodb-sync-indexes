@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha test/test"
   },
   "repository": {
     "type": "git",
@@ -26,9 +26,12 @@
   "homepage": "https://github.com/Keenpoint/mongodb-sync-indexes#readme",
   "dependencies": {
     "async": "^1.4.0",
+    "lodash": "^3.10.0",
     "mongodb": "^2.0.39"
   },
   "devDependencies": {
+    "assert": "^1.3.0",
+    "chai": "^3.2.0",
     "mocha": "^2.2.5"
   }
 }

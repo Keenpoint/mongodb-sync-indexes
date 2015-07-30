@@ -137,10 +137,17 @@ var ignoreMainIndex = function(indexes) {
     });
 };
 
+//Verifies existence of key in all indexes
+var allIndexesHaveAKey = function(indexesArray) {
+    return _.every(indexesArray, "key");
+};
+
 var syncIndexes = function(indexesArray, collection, options, callback) {
 
     collection.indexes(function(err, indexesCollection) {
         if(err) callback(err);
+
+        if (!allIndexesHaveAKey(indexesArray)) callback("Error: without key");
 
         var cleanIndexesCollection = ignoreMainIndex(cleanIndexes(indexesCollection, toIgnoreInDatabase)),
             cleanIndexesArray = ignoreMainIndex(cleanIndexes(indexesArray, toIgnoreInArray));

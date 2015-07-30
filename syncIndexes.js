@@ -1,7 +1,6 @@
-var MongoClient = require("mongodb").MongoClient,
-    assert = require("assert"),
+var assert = require("assert"),
     _ = require("lodash"),
-    async = require('async');
+    async = require("async");
 
 //TODO: second style (pass db and indexes from multiple collections)
 
@@ -20,28 +19,29 @@ var dropIndexes = function(indexesToDrop, collection, callback) {
     var tasks = [];
 
     _.map(indexesToDrop, function(indexToDrop) {
-        tasks.push(
-            function(_callback) {
-                console.log("Dropping index of key " + indexToDrop.key);
-                collection.dropIndex(indexToDrop.key, function(err) {
-                    if(err) {
-                        console.log("Error: " + err.message);
-                    }
-                    else {
-                        console.log("Dropped index " + indexToDrop.name + ".");
-                    }
 
-                    _callback();
-                });
-            }
-        )
+        tasks.push(function(_callback) {
+
+            console.log("Dropping index " + JSON.stringify(indexToDrop.key) + "... ");
+
+            collection.dropIndex(indexToDrop.key, function(err) {
+                if(err) {
+                    console.log("Error: " + err.message);
+                }
+                else {
+                    console.log("Done.");
+                }
+
+                _callback(err);
+            });
+        })
     });
 
-    async.parallel(
+    async.series(
         tasks,
         function(err) {
             assert.equal(err);
-            callback();
+            callback(err);
         }
     );
 };
@@ -51,104 +51,116 @@ var createIndexes = function(indexesToCreate, collection, callback) {
     var tasks = [];
 
     _.map(indexesToCreate, function(indexToCreate) {
-            tasks.push(
-                function(_callback) {
-                    console.log("Creating index of key " + indexToCreate.key);
-                    collection.createIndex(indexToCreate.key, function(err, indexName) {
-                        assert.equal(null, err);
+        tasks.push(function(_callback) {
 
-                        console.log("Created index " + indexName + ".");
+            console.log("Creating index " + JSON.stringify(indexToCreate.key) + "... ");
 
-                        _callback();
-                    });
+            collection.createIndex(indexToCreate.key, function(err, indexName) {
+
+                if(err) {
+                    console.log("Error: " + err.message);
                 }
-            );
-        }
-    );
+                else {
+                    console.log("Done. Name is " + indexName);
+                }
 
-    async.parallel(
+                _callback(err);
+            });
+        });
+    });
+
+    async.series(
         tasks,
         function(err) {
             assert.equal(err);
-            callback();
+            callback(err);
         }
     );
 };
 
-var isEqual = function(index1, index2, positionArray, toIgnoreIfUndefined) {
-
-    var indexArray = positionArray == 1 ? index1 : index2,
-        indexCollection = positionArray == 1 ? index2 : index1;
+var isEqual = function(cleanIndexCollection, cleanIndexArray) {
 
     var toIgnore = _.chain(toIgnoreIfUndefined)
         .map(function(_toIgnoreIfUndefined) {
-            if(indexArray[_toIgnoreIfUndefined] === undefined) return _toIgnoreIfUndefined;
+            if(cleanIndexArray[_toIgnoreIfUndefined] === undefined) return _toIgnoreIfUndefined;
         })
         .compact()
         .value();
 
-    indexCollection = _.omit(indexCollection, toIgnore);
+    cleanIndexCollection = _.omit(cleanIndexCollection, toIgnore);
 
-    return _.isEqual(indexArray, indexCollection);
+    return _.isEqual(cleanIndexCollection, cleanIndexArray);
 };
 
-var difference = function(indexes, indexesToKeep, positionArray, toIgnoreIfUndefined) {
+var differences = function(cleanIndexesCollection, cleanIndexesArray) {
 
-    return _.chain(indexes)
-        .map(function(index) {
+    return {
+        toDrop: function() {
+            return _.chain(cleanIndexesCollection)
+                .map(function(cleanIndexCollection) {
 
-            var presentInArray = false;
-            _.map(indexesToKeep, function(indexToKeep) {
-                if(isEqual(index, indexToKeep, positionArray, toIgnoreIfUndefined)) presentInArray = true;
-            });
-            if(!presentInArray) return index;
-        })
-        .compact()
-        .value();
+                    var presentInArray = false;
+                    _.map(cleanIndexesArray, function(cleanIndexArray) {
+                        if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInArray = true;
+                    });
+
+                    if(!presentInArray) return cleanIndexCollection;
+                })
+                .compact()
+                .value();
+        },
+
+        toCreate: function() {
+            return _.chain(cleanIndexesArray)
+                .map(function(cleanIndexArray) {
+
+                    var presentInCollection = false;
+                    _.map(cleanIndexesCollection, function(cleanIndexCollection) {
+                        if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInCollection = true;
+                    });
+                    if(!presentInCollection) return cleanIndexArray;
+                })
+                .compact()
+                .value();
+        }
+    }
 };
 
-//For the moment, collection is a string
-var syncIndexes = function(indexesArray, url, collectionName, options, callback) {
+var syncIndexes = function(indexesArray, collection, options, callback) {
 
-    // Use connect method to connect to the Server
-    MongoClient.connect(url, function(err, db) {
+    collection.indexes(function(err, indexesCollection) {
+        if(err) callback(err);
 
-        assert.equal(null, err);
-        console.log("Correctly connected to server. \n");
+        var cleanIndexesCollection = cleanIndexes(indexesCollection, toIgnoreInDatabase),
+            cleanIndexesArray = cleanIndexes(indexesArray, toIgnoreInArray);
 
-        var collection = db.collection(collectionName);
+        var diff = differences(cleanIndexesCollection, cleanIndexesArray);
 
-        collection.indexes(function(err, indexesCollection) {
-            assert.equal(err, null);
+        var indexesToDrop = diff.toDrop(),
+            indexesToCreate = diff.toCreate();
 
-            var cleanIndexesCollection = cleanIndexes(indexesCollection, toIgnoreInDatabase);
-            var cleanIndexesArray = cleanIndexes(indexesArray, toIgnoreInArray);
-
-            var indexesToDrop = difference(cleanIndexesCollection, cleanIndexesArray, 2, toIgnoreIfUndefined);
-            var indexesToCreate = difference(cleanIndexesArray, cleanIndexesCollection, 1, toIgnoreIfUndefined);
-
-            console.log(indexesToDrop);
-            console.log(indexesToCreate);
-
-            async.series(
-                [
-                    function(_callback) {
-                        dropIndexes(indexesToDrop, collection, _callback);
-                    },
-                    function(_callback) {
-                        createIndexes(indexesToCreate, collection, _callback);
-                    }
-                ],
-                function(err) {
-                    assert.equal(err, null);
-                    db.close();
+        async.series(
+            [
+                function(_callback) {
+                    dropIndexes(indexesToDrop, collection, _callback);
+                },
+                function(_callback) {
+                    createIndexes(indexesToCreate, collection, _callback);
                 }
-            );
+            ],
+            function(err) {
+                //Close connection even if there's an error
+                db.close();
+                if(err) {
+                    console.log("Error: " + err.message);
+                    callback(err);
+                }
+            }
+        );
 
-            return callback();
-        });
-
+        return callback();
     });
+
 };
 
 module.exports = syncIndexes;

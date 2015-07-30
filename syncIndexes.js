@@ -37,6 +37,7 @@ var dropIndexes = function(indexesToDrop, collection, callback) {
         })
     });
 
+    //TODO: parallel?
     async.series(
         tasks,
         function(err) {
@@ -69,6 +70,7 @@ var createIndexes = function(indexesToCreate, collection, callback) {
         });
     });
 
+    //TODO: parallel?
     async.series(
         tasks,
         function(err) {
@@ -97,14 +99,14 @@ var differences = function(cleanIndexesCollection, cleanIndexesArray) {
     return {
         toDrop: function() {
             return _.chain(cleanIndexesCollection)
-                .map(function(cleanIndexCollection) {
+                .reject(function(cleanIndexCollection) {
 
                     var presentInArray = false;
                     _.map(cleanIndexesArray, function(cleanIndexArray) {
                         if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInArray = true;
                     });
 
-                    if(!presentInArray) return cleanIndexCollection;
+                    return presentInArray;
                 })
                 .compact()
                 .value();
@@ -112,13 +114,14 @@ var differences = function(cleanIndexesCollection, cleanIndexesArray) {
 
         toCreate: function() {
             return _.chain(cleanIndexesArray)
-                .map(function(cleanIndexArray) {
+                .reject(function(cleanIndexArray) {
 
                     var presentInCollection = false;
                     _.map(cleanIndexesCollection, function(cleanIndexCollection) {
                         if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInCollection = true;
                     });
-                    if(!presentInCollection) return cleanIndexArray;
+                    
+                    return presentInCollection;
                 })
                 .compact()
                 .value();

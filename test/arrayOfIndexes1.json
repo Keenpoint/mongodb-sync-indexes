@@ -4,7 +4,8 @@
       "newKey": 1
     },
     "name": "differentName",
-    "unique": true
+    "unique": true,
+    "wtf": "just made this up"
   },
   {
     "key": {

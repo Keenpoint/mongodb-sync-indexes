@@ -53,8 +53,8 @@ describe("Check sync between first array and collection.", function() {
                         });
                     }
                 ],
-                function(err){
-                    //...
+                function(err) {
+                    //assert.equal(err, null);
                 });
 
         });

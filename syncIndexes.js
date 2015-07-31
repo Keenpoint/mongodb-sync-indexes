@@ -1,5 +1,4 @@
-var assert = require("assert"),
-    _ = require("lodash"),
+var _ = require("lodash"),
     async = require("async"),
     events = require("events");
 
@@ -7,27 +6,30 @@ var assert = require("assert"),
 
 var syncIndexes = function(indexesArray, collection, options, callback) {
 
-    // Error handling:
-
-    // Constructor
-    var syncIndexesClass = function() {
+    var eventHandlerClass = function() {
         events.EventEmitter.call(this);
     };
-    require("util").inherits(syncIndexesClass, events.EventEmitter);
+    require("util").inherits(eventHandlerClass, events.EventEmitter);
 
-    // Emitter
-    syncIndexesClass.prototype.emitError = function(msg) {
-        var err = new Error(msg);
-        this.emit("error", err);
-    };
+    var eventHandler = new eventHandlerClass();
 
-    var syncIndexesObject = new syncIndexesClass();
+    // Handlers
 
-    // Handler
-    syncIndexesObject.on("error", function(err) {
+    eventHandler.on("error", function(err) {
         console.log(err);
     });
 
+    eventHandler.on("dropIndex", function(key) {
+        console.log("Dropping index " + key + "... ");
+    });
+
+    eventHandler.on("createIndex", function(key) {
+        console.log("Creating index " + key + "... ");
+    });
+
+    eventHandler.on("confirmation", function(name) {
+        console.log("Done. Name is " + name);
+    });
 
     var toIgnoreInArray = ["background", "dropUps"],
         toIgnoreInDatabase = ["v", "ns"],
@@ -47,14 +49,12 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
 
             tasks.push(function(_callback) {
 
-                console.log("Dropping index " + JSON.stringify(indexToDrop.key) + "... ");
+                eventHandler.emit("dropIndex", JSON.stringify(indexToDrop.key));
 
                 collection.dropIndex(indexToDrop.key, function(err) {
-                    if(err) {
-                        console.log("Error: " + err.message);
-                    }
-                    else {
-                        console.log("Done.");
+
+                    if(!err) {
+                        eventHandler.emit("confirmation", indexToDrop.name);
                     }
 
                     _callback(err);
@@ -66,7 +66,9 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
         async.series(
             tasks,
             function(err) {
-                assert.equal(err);
+                if(err) {
+                    eventHandler.emit("error", err);
+                }
                 callback(err);
             }
         );
@@ -79,17 +81,14 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
         _.map(indexesToCreate, function(indexToCreate) {
             tasks.push(function(_callback) {
 
-                console.log("Creating index " + JSON.stringify(indexToCreate.key) + "... ");
+                eventHandler.emit("createIndex", JSON.stringify(indexToCreate.key));
 
                 var options = getOptionsFromCleanIndex(indexToCreate);
 
                 collection.createIndex(indexToCreate.key, options, function(err, indexName) {
 
-                    if(err) {
-                        console.log("Error: " + err.message);
-                    }
-                    else {
-                        console.log("Done. Name is " + indexName);
+                    if(!err) {
+                        eventHandler.emit("confirmation", indexName);
                     }
 
                     _callback(err);
@@ -101,7 +100,9 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
         async.series(
             tasks,
             function(err) {
-                assert.equal(err);
+                if(err) {
+                    eventHandler.emit("error", err);
+                }
                 callback(err);
             }
         );
@@ -177,11 +178,15 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
 
     collection.indexes(function(err, indexesCollection) {
         if(err) {
-            syncIndexesObject.emitError("Hello");
+            eventHandler.emit("error", err);
             return callback(err);
         }
 
-        if(!allIndexesHaveAKey(indexesArray)) callback("Error: without key");
+        if(!allIndexesHaveAKey(indexesArray)) {
+            var _err =  new Error("Your array has at least one index without the 'key' property.");
+            eventHandler.emit("error", _err);
+            return callback(_err);
+        }
 
         var cleanIndexesCollection = ignoreMainIndex(cleanIndexes(indexesCollection, toIgnoreInDatabase)),
             cleanIndexesArray = ignoreMainIndex(cleanIndexes(indexesArray, toIgnoreInArray));
@@ -201,11 +206,12 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
                 }
             ],
             function(err) {
-                // Close connection even if there's an error
-                db.close();
                 if(err) {
-                    console.log("Error: " + err.message);
-                    callback(err);
+                    eventHandler.emit("error", err);
+                    return callback(err);
+                }
+                else {
+                    db.close();
                 }
             }
         );

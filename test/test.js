@@ -7,7 +7,7 @@ var MongoClient = require("mongodb").MongoClient,
     async = require("async");
 
 // Connection URL
-var url = "mongodb://localhost:27017/mr_demo";
+var url = "mongodb://localhost:27017/mocha";
 
 describe("Check sync between first array and collection.", function() {
 
@@ -22,12 +22,15 @@ describe("Check sync between first array and collection.", function() {
 
             console.log("Correctly connected to server.\n");
 
-            var collection = db.collection("us_economic_assistance");
+            var collectionName = "mochaCollection1",
+                collection = db.collection(collectionName);
+
+            console.log(db);
 
             async.series(
                 [
                     function(callback) {
-                        db.createCollection("us_economic_assistance", function(err) {
+                        db.createCollection(collectionName, function(err) {
                             callback(err);
                         });
                     },
@@ -48,13 +51,13 @@ describe("Check sync between first array and collection.", function() {
                                 console.log("- Array has indexes: " + JSON.stringify(_.pluck(arrayOfIndexes1, "key")));
                                 console.log();
                             }
-                            syncIndexes(arrayOfIndexes1, collection, "", done);
+                            syncIndexes(arrayOfIndexes1, collection, {log: true}, done);
                             callback(err);
                         });
                     }
                 ],
                 function(err) {
-                    //assert.equal(err, null);
+                    assert.equal(err, null);
                 });
 
         });

@@ -16,19 +16,19 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
     // Handlers
 
     eventHandler.on("error", function(err) {
-        console.log(err);
+        if(options !== undefined && options.log) console.log(err);
     });
 
     eventHandler.on("dropIndex", function(key) {
-        console.log("Dropping index " + key + "... ");
+        if(options !== undefined && options.log) console.log("Dropping index " + key + "... ");
     });
 
     eventHandler.on("createIndex", function(key) {
-        console.log("Creating index " + key + "... ");
+        if(options !== undefined && options.log) console.log("Creating index " + key + "... ");
     });
 
     eventHandler.on("confirmation", function(name) {
-        console.log("Done. Name is " + name);
+        if(options !== undefined && options.log) console.log("Done. Name is " + name);
     });
 
     var toIgnoreInArray = ["background", "dropUps"],
@@ -62,7 +62,7 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
             })
         });
 
-        //TODO: parallel?
+        //async.series in order to get the confirmation messages right
         async.series(
             tasks,
             function(err) {
@@ -96,7 +96,7 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
             });
         });
 
-        //TODO: parallel?
+        //async.series in order to get the confirmation messages right
         async.series(
             tasks,
             function(err) {
@@ -176,6 +176,7 @@ var syncIndexes = function(indexesArray, collection, options, callback) {
         return _.omit(index, "key");
     };
 
+    // Start point of the function syncIndexesOneCollection
     collection.indexes(function(err, indexesCollection) {
         if(err) {
             eventHandler.emit("error", err);

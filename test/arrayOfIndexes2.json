@@ -1,0 +1,30 @@
+{
+  "mochaCollection1": [
+    {
+      "key": {
+        "newKey": 1
+      },
+      "name": "differentName",
+      "unique": true
+    },
+    {
+      "key": {
+        "newKey": -1
+      }
+    }
+  ],
+  "mochaCollection2": [
+    {
+      "key": {
+        "newKey": 1
+      },
+      "name": "differentName",
+      "unique": true
+    },
+    {
+      "key": {
+        "newKey": -1
+      }
+    }
+  ]
+}

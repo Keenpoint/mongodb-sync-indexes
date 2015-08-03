@@ -1,5 +1,5 @@
 {
-  "mochaCollection1": [
+  "mongodbSyncIndexesCollection3": [
     {
       "key": {
         "newKey": 1
@@ -13,7 +13,7 @@
       }
     }
   ],
-  "mochaCollection2": [
+  "mongodbSyncIndexesCollection4": [
     {
       "key": {
         "newKey": 1

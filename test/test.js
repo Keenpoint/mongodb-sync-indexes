@@ -7,50 +7,59 @@ var MongoClient = require("mongodb").MongoClient,
     async = require("async");
 
 // Connection URL
-var url = "mongodb://localhost:27017/mocha";
+var url = "mongodb://localhost:27017/test";
 
-describe("Check sync between first array and collection.", function () {
+before(function() {
+    console.log("before");
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(err, null);
 
-    it("sss.", function (done) {
+        db.dropDatabase(function(err) {
+            assert.equal(err, null);
+        });
+    });
+});
 
-        console.log("Test 1\n");
+describe("Sync between array and collection.", function() {
+
+    it("First couple array-collection", function(done) {
 
         var arrayOfIndexes1 = require("./arrayOfIndexes1.json");
 
-        MongoClient.connect(url, function (err, db) {
+        console.log(arrayOfIndexes1 instanceof Array);
+
+        MongoClient.connect(url, function(err, db) {
             assert.equal(err, null);
 
-            console.log("Correctly connected to server.\n");
-
-            var collectionName = "mochaCollection1",
+            var collectionName = "mongodbSyncIndexesCollection1",
                 collection = db.collection(collectionName);
 
             async.series(
                 [
                     // Ensure collection exists
-                    function (callback) {
-                        db.createCollection(collectionName, function (err) {
+                    function(callback) {
+                        db.createCollection(collectionName, function(err) {
                             callback(err);
                         });
                     },
                     // Reset database (important so one test doesn't interfere with another)
-                    function (callback) {
-                        collection.dropIndexes(function (err) {
+                    function(callback) {
+                        collection.dropIndexes(function(err) {
                             callback(err);
                         });
                     },
                     // Put some indexes in database to test "drop"
-                    function (callback) {
-                        collection.createIndex({country_name: 1}, function (err) {
+                    function(callback) {
+                        collection.createIndex({country_name: 1}, function(err) {
                             callback(err);
                         });
                     },
                     // Execute algorithm
-                    function (callback) {
+                    function(callback) {
                         syncIndexes(arrayOfIndexes1, collection, {log: true}, callback);
                     }
                 ],
-                function (err) {
+                function(err) {
                     db.close();
                     assert.equal(err, null);
                     done();
@@ -61,5 +70,46 @@ describe("Check sync between first array and collection.", function () {
         //Verification
         //expect(result).to.deep.equal(correctAnswer);
 
+    });
+});
+
+describe("Sync between object of arrays and database.", function() {
+
+    it("First couple object-database", function(done) {
+
+        var arrayOfIndexes2 = require("./arrayOfIndexes2.json");
+
+        MongoClient.connect(url, function(err, db) {
+            assert.equal(err, null);
+
+            async.series(
+                [
+                    // Execute algorithm
+                    function(callback) {
+                        syncIndexes(arrayOfIndexes2, db, {log: true}, callback);
+                    }
+                ],
+                function(err) {
+                    db.close();
+                    assert.equal(err, null);
+                    done();
+                }
+            );
+        });
+
+        //Verification
+        //expect(result).to.deep.equal(correctAnswer);
+
+    });
+});
+
+after(function() {
+    console.log("after");
+    MongoClient.connect(url, function(err, db) {
+        assert.equal(err, null);
+
+        db.dropDatabase(function(err) {
+            assert.equal(err, null);
+        });
     });
 });

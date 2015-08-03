@@ -6,10 +6,10 @@ var _ = require("lodash"),
 
 // TODO: error if arrayIndexes isn't in the correct format for db/collection
 
-var syncIndexes = function (indexesArray, collection, options, callback) {
+var syncIndexes = function(indexesArray, collection, options, callback) {
 
     //Handler class definition
-    var eventHandlerClass = function () {
+    var eventHandlerClass = function() {
         events.EventEmitter.call(this);
     };
     require("util").inherits(eventHandlerClass, events.EventEmitter);
@@ -18,20 +18,20 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
 
     // Handlers
 
-    eventHandler.on("error", function (err) {
-        if (options !== undefined && options.log) console.log(err);
+    eventHandler.on("error", function(err) {
+        if(options !== undefined && options.log) console.log(err);
     });
 
-    eventHandler.on("dropIndex", function (key) {
-        if (options !== undefined && options.log) console.log("Dropping index " + key + "... ");
+    eventHandler.on("dropIndex", function(key) {
+        if(options !== undefined && options.log) console.log("Dropping index " + key + "... ");
     });
 
-    eventHandler.on("createIndex", function (key) {
-        if (options !== undefined && options.log) console.log("Creating index " + key + "... ");
+    eventHandler.on("createIndex", function(key) {
+        if(options !== undefined && options.log) console.log("Creating index " + key + "... ");
     });
 
-    eventHandler.on("confirmation", function (name) {
-        if (options !== undefined && options.log) console.log("Done. Name is " + name + "\n");
+    eventHandler.on("confirmation", function(name) {
+        if(options !== undefined && options.log) console.log("Done. Name is " + name + "\n");
     });
 
     // -- Handlers
@@ -40,25 +40,25 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         toIgnoreInDatabase = ["v", "ns"],
         toIgnoreIfUndefined = ["name"];
 
-    var cleanIndexes = function (indexesToClean, dirty) {
-        return _.map(indexesToClean, function (indexToClean) {
+    var cleanIndexes = function(indexesToClean, dirty) {
+        return _.map(indexesToClean, function(indexToClean) {
             return _.omit(indexToClean, dirty);
         });
     };
 
-    var dropIndexes = function (indexesToDrop, collection, callback) {
+    var dropIndexes = function(indexesToDrop, collection, callback) {
 
         var tasks = [];
 
-        _.map(indexesToDrop, function (indexToDrop) {
+        _.map(indexesToDrop, function(indexToDrop) {
 
-            tasks.push(function (_callback) {
+            tasks.push(function(_callback) {
 
                 eventHandler.emit("dropIndex", JSON.stringify(indexToDrop.key));
 
-                collection.dropIndex(indexToDrop.key, function (err) {
+                collection.dropIndex(indexToDrop.key, function(err) {
 
-                    if (!err) {
+                    if(!err) {
                         eventHandler.emit("confirmation", indexToDrop.name);
                     }
 
@@ -70,8 +70,8 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         //async.series in order to get the confirmation messages right
         async.parallel(
             tasks,
-            function (err) {
-                if (err) {
+            function(err) {
+                if(err) {
                     eventHandler.emit("error", err);
                 }
                 callback(err);
@@ -79,20 +79,20 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         );
     };
 
-    var createIndexes = function (indexesToCreate, collection, callback) {
+    var createIndexes = function(indexesToCreate, collection, callback) {
 
         var tasks = [];
 
-        _.map(indexesToCreate, function (indexToCreate) {
-            tasks.push(function (_callback) {
+        _.map(indexesToCreate, function(indexToCreate) {
+            tasks.push(function(_callback) {
 
                 eventHandler.emit("createIndex", JSON.stringify(indexToCreate.key));
 
                 var options = getOptionsFromCleanIndex(indexToCreate);
 
-                collection.createIndex(indexToCreate.key, options, function (err, indexName) {
+                collection.createIndex(indexToCreate.key, options, function(err, indexName) {
 
-                    if (!err) {
+                    if(!err) {
                         eventHandler.emit("confirmation", indexName);
                     }
 
@@ -104,8 +104,8 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         //async.series in order to get the confirmation messages right
         async.series(
             tasks,
-            function (err) {
-                if (err) {
+            function(err) {
+                if(err) {
                     eventHandler.emit("error", err);
                 }
                 callback(err);
@@ -113,13 +113,13 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         );
     };
 
-    var isEqual = function (cleanIndexCollection, cleanIndexArray) {
+    var isEqual = function(cleanIndexCollection, cleanIndexArray) {
 
         // toIgnore has the ignorable properties that are defined in our array
         var toIgnore = _.chain(toIgnoreIfUndefined)
-            .map(function (_toIgnoreIfUndefined) {
+            .map(function(_toIgnoreIfUndefined) {
                 //TODO use has?
-                if (cleanIndexArray[_toIgnoreIfUndefined] === undefined) return _toIgnoreIfUndefined;
+                if(cleanIndexArray[_toIgnoreIfUndefined] === undefined) return _toIgnoreIfUndefined;
             })
             .compact()
             .value();
@@ -129,16 +129,16 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         return _.isEqual(cleanIndexCollection, cleanIndexArray);
     };
 
-    var differences = function (cleanIndexesCollection, cleanIndexesArray) {
+    var differences = function(cleanIndexesCollection, cleanIndexesArray) {
 
         return {
-            toDrop: function () {
+            toDrop: function() {
                 return _.chain(cleanIndexesCollection)
-                    .reject(function (cleanIndexCollection) {
+                    .reject(function(cleanIndexCollection) {
 
                         var presentInArray = false;
-                        _.map(cleanIndexesArray, function (cleanIndexArray) {
-                            if (isEqual(cleanIndexCollection, cleanIndexArray)) presentInArray = true;
+                        _.map(cleanIndexesArray, function(cleanIndexArray) {
+                            if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInArray = true;
                         });
 
                         return presentInArray;
@@ -146,13 +146,13 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
                     .value();
             },
 
-            toCreate: function () {
+            toCreate: function() {
                 return _.chain(cleanIndexesArray)
-                    .reject(function (cleanIndexArray) {
+                    .reject(function(cleanIndexArray) {
 
                         var presentInCollection = false;
-                        _.map(cleanIndexesCollection, function (cleanIndexCollection) {
-                            if (isEqual(cleanIndexCollection, cleanIndexArray)) presentInCollection = true;
+                        _.map(cleanIndexesCollection, function(cleanIndexCollection) {
+                            if(isEqual(cleanIndexCollection, cleanIndexArray)) presentInCollection = true;
                         });
 
                         return presentInCollection;
@@ -163,33 +163,33 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
     };
 
     // Function to ignore index of key {_id: 1} (automatically generated by mongodb, not deletable).
-    var ignoreMainIndex = function (indexes) {
-        return _.reject(indexes, function (index) {
+    var ignoreMainIndex = function(indexes) {
+        return _.reject(indexes, function(index) {
             //We reject if the expression below is true (the index is the main one).
             return (_.isEqual(index.key, {"_id": 1}));
         });
     };
 
     // Verifies existence of key in all indexes
-    var allIndexesHaveAKey = function (indexesArray) {
+    var allIndexesHaveAKey = function(indexesArray) {
         return _.every(indexesArray, "key");
     };
 
     // A priori, everything that's not the index neither an ignorable property is an option (additional information
     // to create the index).
     // TODO avoid overriding properties from mongodb options
-    var getOptionsFromCleanIndex = function (index) {
+    var getOptionsFromCleanIndex = function(index) {
         return _.omit(index, "key");
     };
 
     // Start point of the function syncIndexesOneCollection
-    collection.indexes(function (err, indexesCollection) {
-        if (err) {
+    collection.indexes(function(err, indexesCollection) {
+        if(err) {
             eventHandler.emit("error", err);
             return callback(err);
         }
 
-        if (!allIndexesHaveAKey(indexesArray)) {
+        if(!allIndexesHaveAKey(indexesArray)) {
             var _err = new Error("Your array has at least one index without the 'key' property.");
             eventHandler.emit("error", _err);
             return callback(_err);
@@ -208,15 +208,15 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
         // Drop and create indexes in the collection
         async.series(
             [
-                function (_callback) {
+                function(_callback) {
                     dropIndexes(indexesToDrop, collection, _callback);
                 },
-                function (_callback) {
+                function(_callback) {
                     createIndexes(indexesToCreate, collection, _callback);
                 }
             ],
-            function (err) {
-                if (err) {
+            function(err) {
+                if(err) {
                     eventHandler.emit("error", err);
                     return callback(err);
                 }
@@ -229,27 +229,31 @@ var syncIndexes = function (indexesArray, collection, options, callback) {
 
 };
 
-var updateCollectionOrCollections = function (indexesArray, dbOrCollection, options, callback) {
+var updateCollectionOrCollections = function(indexesArrayOrObject, dbOrCollection, options, callback) {
 
     //TODO change this hack. Use a more stable way to define if it's collection or db
 
     // If it's collection
-    if (_.has(dbOrCollection, "s.dbName")) {
-        // TODO undo little hack ? create collection if it doesn't existe. otherwise AssertionError: [MongoError: no collection]
-        dbOrCollection.createIndex({_id: 1}, function (err) {
-            if (err) return callback(err);
-            syncIndexes(indexesArray, dbOrCollection, options, callback);
+    if(_.has(dbOrCollection, "s.dbName")) {
+        // Check if indexesArrayOrObject is an array
+
+        // TODO undo little hack ? create collection if it doesn't exist. otherwise AssertionError: [MongoError: no collection]
+
+        dbOrCollection.createIndex({_id: 1}, function(err) {
+            if(err) return callback(err);
+            syncIndexes(indexesArrayOrObject, dbOrCollection, options, callback);
         });
     }
     //If it's database
-    else if (_.has(dbOrCollection, "s.databaseName")) {
+    else if(_.has(dbOrCollection, "s.databaseName")) {
+        // Check if indexesArrayOrObject is an object
 
         var tasks = [];
 
-        _.map(indexesArray, function (value, collectionName) {
-            tasks.push(function (_callback) {
-                dbOrCollection.createCollection(collectionName, function (err) {
-                    if (err) return _callback(err);
+        _.map(indexesArrayOrObject, function(value, collectionName) {
+            tasks.push(function(_callback) {
+                dbOrCollection.createCollection(collectionName, function(err) {
+                    if(err) return _callback(err);
                     syncIndexes(value, dbOrCollection.collection(collectionName), options, _callback);
                 });
             });
@@ -258,8 +262,8 @@ var updateCollectionOrCollections = function (indexesArray, dbOrCollection, opti
         // Update collections asynchronously
         async.series(
             tasks,
-            function (err) {
-                if (err) eventHandler.emit("error", err);
+            function(err) {
+                if(err) eventHandler.emit("error", err);
                 callback(err);
             }
         );

@@ -10,7 +10,6 @@ var MongoClient = require("mongodb").MongoClient,
 var url = "mongodb://localhost:27017/test";
 
 before(function() {
-    console.log("before");
     MongoClient.connect(url, function(err, db) {
         assert.equal(err, null);
 
@@ -25,8 +24,6 @@ describe("Sync between array and collection.", function() {
     it("First couple array-collection", function(done) {
 
         var arrayOfIndexes1 = require("./arrayOfIndexes1.json");
-
-        console.log(arrayOfIndexes1 instanceof Array);
 
         MongoClient.connect(url, function(err, db) {
             assert.equal(err, null);
@@ -104,7 +101,6 @@ describe("Sync between object of arrays and database.", function() {
 });
 
 after(function() {
-    console.log("after");
     MongoClient.connect(url, function(err, db) {
         assert.equal(err, null);
 

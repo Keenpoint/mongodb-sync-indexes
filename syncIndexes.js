@@ -17,7 +17,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
         toIgnoreIfUndefined = ["name"];
 
     //Handler class definition
-    var eventHandlerClass = function() {
+    var eventHandlerClass = function() {//todo: http://www.hacksparrow.com/node-js-eventemitter-tutorial.html
         events.EventEmitter.call(this);
     };
     require("util").inherits(eventHandlerClass, events.EventEmitter);

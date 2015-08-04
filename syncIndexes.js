@@ -12,6 +12,10 @@ var _ = require("lodash"),
 
 var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callback) {
 
+    var toIgnoreInArray = ["background", "dropUps"],
+        toIgnoreInDatabase = ["v", "ns"],
+        toIgnoreIfUndefined = ["name"];
+
     //Handler class definition
     var eventHandlerClass = function() {
         events.EventEmitter.call(this);
@@ -39,10 +43,6 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
     });
 
     // -- Handlers
-
-    var toIgnoreInArray = ["background", "dropUps"],
-        toIgnoreInDatabase = ["v", "ns"],
-        toIgnoreIfUndefined = ["name"];
 
     var cleanIndexes = function(indexesToClean, dirty) {
         return _.map(indexesToClean, function(indexToClean) {
@@ -244,10 +244,10 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
                 function(err) {
                     if(err) {
                         eventHandler.emit("error", err);
-                        return callback(err);
+                        return typeof callback === 'function' && callback(err);
                     }
                     else {
-                        return callback();
+                        return typeof callback === 'function' && callback();
                     }
                 }
             );
@@ -259,7 +259,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
         if(!checkInitialRequirements(indexesArrayOrObject)) {
             var _err = new Error("Your first argument is not a valid object. Please refer to the documentation.");
             eventHandler.emit("error", _err);
-            return callback(_err);
+            return typeof callback === 'function' && callback(_err);
         }
 
         //TODO change this hack. Use a more stable way to define if it's collection or db
@@ -271,13 +271,13 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
             if(!checkRequirementsWhenCollection(indexesArrayOrObject)) {
                 var _err = new Error("Your second argument is a collection, but the first one doesn't respect the norm. Please refer to the documentation.");
                 eventHandler.emit("error", _err);
-                return callback(_err);
+                return typeof callback === 'function' && callback(_err);
             }
 
             // TODO undo little hack ? create collection if it doesn't exist. otherwise AssertionError: [MongoError: no collection]
 
             dbOrCollection.createIndex({_id: 1}, function(err) {
-                if(err) return callback(err);
+                if(err) return typeof callback === 'function' && callback(err);
                 updateOneCollection(indexesArrayOrObject, dbOrCollection, options, callback);
             });
         }
@@ -287,7 +287,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
             if(!checkRequirementsWhenDatabase(indexesArrayOrObject)) {
                 var _err = new Error("Your second argument is a database, but the first one doesn't respect the norm. Please refer to the documentation.");
                 eventHandler.emit("error", _err);
-                return callback(_err);
+                return typeof callback === 'function' && callback(_err);
             }
 
             var tasks = [];
@@ -306,7 +306,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
                 tasks,
                 function(err) {
                     if(err) eventHandler.emit("error", err);
-                    callback(err);
+                    return typeof callback === 'function' && callback(err);
                 }
             );
         }

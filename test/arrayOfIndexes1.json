@@ -9,6 +9,8 @@
   {
     "key": {
       "newKey": -1
-    }
+    },
+    "unique": true,
+    "sparse": true
   }
 ]

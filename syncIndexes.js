@@ -72,7 +72,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
         });
 
         //async.series in order to get the confirmation messages right
-        async.parallel(
+        async.series(
             tasks,
             function(err) {
                 if(err) {

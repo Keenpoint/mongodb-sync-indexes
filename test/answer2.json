@@ -4,7 +4,7 @@
       "_id": 1
     },
     "name": "_id_",
-    "ns": "test.mongodbSyncIndexesCollection1",
+    "ns": "test.mongodbSyncIndexesCollection2",
     "v": 1
   },
   {
@@ -12,7 +12,7 @@
       "newKey": 1
     },
     "name": "differentName",
-    "ns": "test.mongodbSyncIndexesCollection1",
+    "ns": "test.mongodbSyncIndexesCollection2",
     "unique": true,
     "v": 1
   }

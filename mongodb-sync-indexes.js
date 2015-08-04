@@ -3,18 +3,16 @@ var _ = require("lodash"),
     events = require("events");
 
 // TODO: how to avoid repetition when the code uses return callback and we don't want to execute anything after?
-
 // TODO: interrupt execution even without callback
-
 // TODO: error if arrayIndexes isn't in the correct format for db/collection
-
 // TODO avoid overriding properties from mongodb options
 
-var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callback) {
+var toIgnoreInArray = ["background", "dropUps"],
+    toIgnoreInDatabase = ["v", "ns"],
+    toIgnoreIfUndefined = ["name"];
 
-    var toIgnoreInArray = ["background", "dropUps"],
-        toIgnoreInDatabase = ["v", "ns"],
-        toIgnoreIfUndefined = ["name"];
+
+var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callback) {
 
     //Handler class definition
     var eventHandlerClass = function() {//todo: http://www.hacksparrow.com/node-js-eventemitter-tutorial.html
@@ -26,20 +24,30 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
 
     // Handlers
 
-    eventHandler.on("error", function(err) {
-        if(options !== undefined && options.log) console.log(err);
-    });
+    if(options.log !== false) {
+        eventHandler.on("error", function(err) {
+            console.log(err);
+        });
 
-    eventHandler.on("dropIndex", function(key) {
-        if(options !== undefined && options.log) console.log("Dropping index " + key + "... ");
-    });
+        eventHandler.on("dropIndex", function(key, collection) {
+            console.log("Dropping index " + key + " in collection " + collection.s.name + "...");
+        });
 
-    eventHandler.on("createIndex", function(key) {
-        if(options !== undefined && options.log) console.log("Creating index " + key + "... ");
-    });
+        eventHandler.on("createIndex", function(key, collection) {
+            console.log("Creating index " + key + " in collection " + collection.s.name + "...");
+        });
 
-    eventHandler.on("confirmation", function(name) {
-        if(options !== undefined && options.log) console.log("Done. Name is " + name + "\n");
+        eventHandler.on("droppedIndex", function(name) {
+            console.log("Done. Index dropped has name " + name + "\n");
+        });
+
+        eventHandler.on("createdIndex", function(name) {
+            console.log("Done. Index created has name " + name + "\n");
+        });
+    }
+
+    eventHandler.on("done", function() {
+        if(callback) return callback();
     });
 
     // -- Handlers
@@ -58,12 +66,12 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
 
             tasks.push(function(_callback) {
 
-                eventHandler.emit("dropIndex", JSON.stringify(indexToDrop.key));
+                eventHandler.emit("dropIndex", JSON.stringify(indexToDrop.key), collection);
 
                 collection.dropIndex(indexToDrop.key, function(err) {
 
                     if(!err) {
-                        eventHandler.emit("confirmation", indexToDrop.name);
+                        eventHandler.emit("droppedIndex", indexToDrop.name);
                     }
 
                     _callback(err);
@@ -90,14 +98,14 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
         _.map(indexesToCreate, function(indexToCreate) {
             tasks.push(function(_callback) {
 
-                eventHandler.emit("createIndex", JSON.stringify(indexToCreate.key));
+                eventHandler.emit("createIndex", JSON.stringify(indexToCreate.key), collection);
 
                 var options = getOptionsFromCleanIndex(indexToCreate);
 
                 collection.createIndex(indexToCreate.key, options, function(err, indexName) {
 
                     if(!err) {
-                        eventHandler.emit("confirmation", indexName);
+                        eventHandler.emit("createdIndex", indexName);
                     }
 
                     _callback(err);
@@ -265,7 +273,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
         //TODO change this hack. Use a more stable way to define if it's collection or db
 
         // If it's collection
-        if(_.has(dbOrCollection, "s.dbName")) {
+        if(dbOrCollection instanceof require("mongodb").Collection) {
             // Check if indexesArrayOrObject is an array
             // TODO put in function
             if(!checkRequirementsWhenCollection(indexesArrayOrObject)) {
@@ -275,14 +283,13 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
             }
 
             // TODO undo little hack ? create collection if it doesn't exist. otherwise AssertionError: [MongoError: no collection]
-
             dbOrCollection.createIndex({_id: 1}, function(err) {
-                if(err) return typeof callback === 'function' && callback(err);
+                if(err) return typeof callback === 'function' && callback(err); //TODO change
                 updateOneCollection(indexesArrayOrObject, dbOrCollection, options, callback);
             });
         }
         // If it's database
-        else if(_.has(dbOrCollection, "s.databaseName")) {
+        else if(dbOrCollection instanceof require("mongodb").Db) {
             // Check if indexesArrayOrObject is an object with the required properties
             if(!checkRequirementsWhenDatabase(indexesArrayOrObject)) {
                 var _err = new Error("Your second argument is a database, but the first one doesn't respect the norm. Please refer to the documentation.");
@@ -306,14 +313,19 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, callba
                 tasks,
                 function(err) {
                     if(err) eventHandler.emit("error", err);
-                    return typeof callback === 'function' && callback(err);
+                    return callback(err);
                 }
             );
+        }
+        else {
+            eventHandler.emit("error", new Error("Sorry, the second argument given isn't a collection, neither a database."));
         }
 
     };
 
     updateCollectionOrDatabase(indexesArrayOrObject, dbOrCollection, options, callback);
+
+    return eventHandler;
 };
 
 

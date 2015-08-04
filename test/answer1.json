@@ -14,7 +14,8 @@
       "newKey" : 1
     },
     "name" : "differentName",
-    "ns" : "test.mongodbSyncIndexesCollection1"
+    "ns" : "test.mongodbSyncIndexesCollection1",
+    "min": 10
   },
   {
     "v" : 1,
@@ -24,6 +25,8 @@
     },
     "name" : "newKey_-1",
     "ns" : "test.mongodbSyncIndexesCollection1",
-    "sparse" : true
+    "sparse" : true,
+    "max": 20,
+    "expireAfterSeconds": 1
   }
 ]

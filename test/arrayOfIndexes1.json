@@ -4,13 +4,22 @@
       "newKey": 1
     },
     "name": "differentName",
-    "unique": true
+    "unique": true,
+    "v": 1,
+    "min": 10,
+    "background": true,
+    "dropDups": true
   },
   {
     "key": {
       "newKey": -1
     },
     "unique": true,
-    "sparse": true
+    "sparse": true,
+    "dropDups": false,
+    "w": 1,
+    "j": true,
+    "max": 20,
+    "expireAfterSeconds": 1
   }
 ]

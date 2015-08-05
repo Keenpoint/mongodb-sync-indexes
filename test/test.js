@@ -139,7 +139,11 @@ describe("Sync between array and collection.", function() {
                 },
                 // Execute algorithm
                 function(callback) {
-                    syncIndexes(arrayOfIndexes2, collection, {log: false}, callback);
+                    //Another way to call the main function:
+                    var eventHandler = syncIndexes(arrayOfIndexes2, collection, {log:false});
+                    eventHandler.on("done", function() {
+                        callback();
+                    });
                 }
             ],
             function(err) {
@@ -171,7 +175,7 @@ describe("Sync between object of arrays and database.", function() {
             [
                 // Execute algorithm
                 function(callback) {
-                    syncIndexes(arrayOfIndexes3and4, dbInTest, {log: true}, callback);
+                    syncIndexes(arrayOfIndexes3and4, dbInTest, {log: false}, callback);
                 }
             ],
             function(err) {

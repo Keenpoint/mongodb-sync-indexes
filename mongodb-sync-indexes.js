@@ -14,7 +14,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
     // Handlers
 
-    if(options.log !== false) {
+    if(options === undefined || options.log !== false) {
         eventHandler.on("error", function(err) {
             console.log(err);
         });
@@ -37,7 +37,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     }
 
     eventHandler.on("done", function() {
-        if(options.log !== false) console.log("Finished synchronization.\n");
+        if(options === undefined || options.log !== false) console.log("Finished synchronization.\n\n");
         if(mainCallback) return mainCallback();
     });
 

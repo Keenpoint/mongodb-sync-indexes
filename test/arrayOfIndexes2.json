@@ -1,24 +1,16 @@
 [
   {
     "key": {
-      "newKey2": 1
+      "importantField": 1
     },
-    "name": "differentName2",
-    "unique": true,
-    "v": 1,
-    "min": 10,
-    "background": true,
-    "myPersonalizedProperty": "This will be accepted."
+    "unique": true
   },
   {
     "key": {
-      "newKey2": 0
+      "anotherField": 1
     },
+    "name": "Heisenberg",
     "sparse": true,
-    "dropDups": false,
-    "w": 1,
-    "max": 20,
-    "expireAfterSeconds": 1,
-    "myPersonalizedProperty": true
+    "w": 1
   }
 ]

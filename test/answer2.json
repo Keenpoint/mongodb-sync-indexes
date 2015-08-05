@@ -9,23 +9,18 @@
   },
   {
     "key": {
-      "newKey2": 1
+      "importantField": 1
     },
-    "min": 10,
-    "myPersonalizedProperty": "This will be accepted.",
-    "name": "differentName2",
+    "name": "importantField_1",
     "ns": "test.mongodbSyncIndexesCollection2",
     "unique": true,
     "v": 1
   },
   {
-    "expireAfterSeconds": 1,
     "key": {
-      "newKey2": 0
+      "anotherField": 1
     },
-    "max": 20,
-    "myPersonalizedProperty": true,
-    "name": "newKey2_0",
+    "name": "Heisenberg",
     "ns": "test.mongodbSyncIndexesCollection2",
     "sparse": true,
     "v": 1

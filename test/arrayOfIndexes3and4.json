@@ -2,28 +2,29 @@
   "mongodbSyncIndexesCollection3": [
     {
       "key": {
-        "newKey": 1
+        "I AM THE ONE WHO KNOCKS": 1
       },
-      "name": "differentName",
+      "name": "Heisenberg",
       "unique": true
     },
     {
       "key": {
-        "newKey": -1
-      }
+        "SAY MY NAME": 1
+      },
+      "name": "whoami"
     }
   ],
   "mongodbSyncIndexesCollection4": [
     {
       "key": {
-        "newKey2": 0
+        "geospatialIndex": 1
       },
       "sparse": true,
       "dropDups": false,
       "w": 1,
+      "min": 10,
       "max": 20,
-      "expireAfterSeconds": 1,
-      "myPersonalizedProperty": true
+      "expireAfterSeconds": 1
     }
   ]
 }

@@ -133,7 +133,7 @@ describe("Sync between array and collection.", function() {
                 },
                 // Put some indexes in database to test "drop"
                 function(callback) {
-                    collection.createIndex({country_name: 2}, function(err) {
+                    collection.createIndex({country_name: 1}, function(err) {
                         callback(err);
                     });
                 },
@@ -171,7 +171,7 @@ describe("Sync between object of arrays and database.", function() {
             [
                 // Execute algorithm
                 function(callback) {
-                    syncIndexes(arrayOfIndexes3and4, dbInTest, {log: false}, callback);
+                    syncIndexes(arrayOfIndexes3and4, dbInTest, {log: true}, callback);
                 }
             ],
             function(err) {

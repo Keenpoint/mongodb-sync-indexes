@@ -37,6 +37,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     }
 
     eventHandler.on("done", function() {
+        if(options.log !== false) console.log("Finished synchronization.\n");
         if(mainCallback) return mainCallback();
     });
 
@@ -298,8 +299,8 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                 });
             });
 
-            // Update collections asynchronously
-            async.parallel(
+            // TODO: Update collections asynchronously. Problem: messages are messy with different collections
+            async.series(
                 tasks,
                 function() {
                     eventHandler.emit("done");

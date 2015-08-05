@@ -9,18 +9,18 @@
   },
   {
     "key": {
-      "newKey": 1
+      "I AM THE ONE WHO KNOCKS": 1
     },
-    "name": "differentName",
-    "unique": true,
+    "name": "Heisenberg",
     "ns": "test.mongodbSyncIndexesCollection3",
+    "unique": true,
     "v": 1
   },
   {
     "key": {
-      "newKey": -1
+      "SAY MY NAME": 1
     },
-    "name": "newKey_-1",
+    "name": "whoami",
     "ns": "test.mongodbSyncIndexesCollection3",
     "v": 1
   }

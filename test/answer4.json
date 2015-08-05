@@ -8,15 +8,15 @@
     "v": 1
   },
   {
-    "key": {
-      "newKey2": 0
-    },
-    "name": "newKey2_0",
-    "sparse": true,
-    "max": 20,
     "expireAfterSeconds": 1,
-    "myPersonalizedProperty": true,
+    "key": {
+      "geospatialIndex": 1
+    },
+    "min": 10,
+    "max": 20,
+    "name":  "geospatialIndex_1",
     "ns": "test.mongodbSyncIndexesCollection4",
+    "sparse": true,
     "v": 1
   }
 ]

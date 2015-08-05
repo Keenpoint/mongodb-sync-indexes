@@ -133,6 +133,7 @@ Finally, in your collection, the indexes are stored like this:
 ```
 
 See how: 
+
 1) Mongodb automatically creates the main index, the one with key {"_id": 1};
 
 2) When not specified, the name is also automatically created using the information available;

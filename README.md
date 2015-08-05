@@ -17,7 +17,11 @@ var syncIndexes = require('mongodb-sync-indexes');
 
 [...]
 
-var eventHandler = syncIndexes(object, collectionOrDatabase, [options], [callback]);
+var eventHandler = syncIndexes(indexList, collection, [options], [callback]);
+
+or
+
+var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
 ```
 
 Arguments:
@@ -39,6 +43,8 @@ You can also use the event handler returned. He already listens to the following
 - "done": to end execution, calling a callback if it's defined
 
 # Examples
+
+- Updating a collection
 
 ```javascript
 var assert = require("assert"),
@@ -89,7 +95,98 @@ Creating index {"population":1} in collection myCollection...
 Done. Index created has name pop
 ```
 
-Finally, in your collection, the indexes stored like this:
+Finally, in your collection, the indexes are stored like this:
+
+```
+[
+  {
+    "key": {
+      "_id": 1
+    },
+    "name": "_id_",
+    "ns": "test.myCollection",
+    "v": 1
+  },
+  {
+    "key": {
+      "country": 1
+    },
+    "myPersonalizedProperty": "This will be accepted.",
+    "name": "country_1",
+    "ns": "test.myCollection",
+    "unique": true,
+    "v": 1
+  },
+  {
+    "key": {
+      "population": 1
+    },
+    "name": "pop",
+    "ns": "test.myCollection",
+    "sparse": true,
+    "v": 1
+  }
+]
+```
+
+- Updating an entire database
+
+```javascript
+var assert = require("assert"),
+    syncIndexes = require('mongodb-sync-indexes');
+ 
+// Normally you'll store this variable in a .json file
+var arraysOfIndexes = 
+            {
+              "firstCollection": [
+                {
+                  "key": {
+                    "city": 1
+                  },
+                  "name": "city",
+                  "unique": true
+                },
+                {
+                  "key": {
+                    "anotherKey": 1
+                  }
+                }
+              ],
+              "secondCollection": [
+                {
+                  "key": {
+                    "aCollectionFieldHere": 1
+                  },
+                  "sparse": true,
+                  "dropDups": false,
+                  "w": 1,
+                  "max": 20,
+                  "expireAfterSeconds": 1,
+                  "myPersonalizedProperty": true
+                }
+              ]
+            }
+
+MongoClient.connect(url, function(err, db) {
+      assert.equal(err, null);
+            
+      syncIndexes(arraysOfIndexes, collection);
+}
+```
+
+In the shell you'll see the following
+```
+Dropping index {"country_name":1} in collection myCollection...
+Done. Index dropped has name country_name_1
+
+Creating index {"country":1} in collection myCollection...
+Done. Index created has name country_1
+
+Creating index {"population":1} in collection myCollection...
+Done. Index created has name pop
+```
+
+Finally, in your collection, the indexes are stored like this:
 
 ```
 [
@@ -124,3 +221,5 @@ Finally, in your collection, the indexes stored like this:
 ```
 
 # First argument rules
+
+tirar comentarios do JSON e colocar aqui

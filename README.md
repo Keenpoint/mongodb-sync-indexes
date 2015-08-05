@@ -31,7 +31,7 @@ Arguments:
 - The mongodb collection or database to be synchronized. No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
 
 - Optionally, pass execution options as an object:
-      - log: a boolean, true by default, that controls the logging activity in terminal
+      - log: a boolean, true by default, that controls the logging activity in the terminal
 
 - Optionally, pass a callback. We don't pass any errors to your callback. The fatal errors (for example, when the first argument doesn't respect our patterns) will block the execution at the very beginning, while minor problems are simply logged.
 

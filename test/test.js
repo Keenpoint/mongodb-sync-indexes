@@ -6,6 +6,7 @@ var MongoClient = require("mongodb").MongoClient,
 // Connection URL
 var url = "mongodb://localhost:27017/test";
 
+// To globally access the database
 var dbInTest;
 
 // Drop collections and store database in global variable
@@ -84,13 +85,13 @@ describe("Sync between array and collection.", function() {
                 },
                 // Put some indexes in database to test "drop"
                 function(callback) {
-                    collection.createIndex({country_name: 1}, function(err) {
+                    collection.createIndex({country_name: 1},function(err) {
                         callback(err);
                     });
                 },
                 // Execute algorithm
                 function(callback) {
-                    syncIndexes(arrayOfIndexes1, collection, {log: true}, callback);
+                    syncIndexes(arrayOfIndexes1, collection, {log: false}, callback);
                 }
             ],
             function(err) {
@@ -110,6 +111,7 @@ describe("Sync between array and collection.", function() {
     it("Second couple array-collection", function(done) {
 
         var arrayOfIndexes2 = require("./arrayOfIndexes2.json");
+
         var correctAnswer2 = require("./answer2.json");
 
         var collectionName = "mongodbSyncIndexesCollection2",
@@ -131,7 +133,7 @@ describe("Sync between array and collection.", function() {
                 },
                 // Put some indexes in database to test "drop"
                 function(callback) {
-                    collection.createIndex({country_name: 1}, function(err) {
+                    collection.createIndex({country_name: 2}, function(err) {
                         callback(err);
                     });
                 },
@@ -160,54 +162,69 @@ describe("Sync between object of arrays and database.", function() {
 
     it("First couple object-database", function(done) {
 
-        var arrayOfIndexes3 = require("./arrayOfIndexes3.json");
+        var arrayOfIndexes3and4 = require("./arrayOfIndexes3and4.json");
+
+        var correctAnswer3 = require("./answer3.json"),
+        correctAnswer4 = require("./answer4.json");
 
         async.series(
             [
                 // Execute algorithm
                 function(callback) {
-                    syncIndexes(arrayOfIndexes3, dbInTest, {log: false}, callback);
+                    syncIndexes(arrayOfIndexes3and4, dbInTest, {log: false}, callback);
                 }
             ],
             function(err) {
                 assert.equal(err, null);
-                done();
+
+                dbInTest.collection("mongodbSyncIndexesCollection3").indexes(function(err, indexesInCollection3) {
+                    assert.equal(err, null);
+
+                    //Verification
+                    assert.deepEqual(indexesInCollection3, correctAnswer3);
+
+                    dbInTest.collection("mongodbSyncIndexesCollection4").indexes(function(err, indexesInCollection4) {
+                        assert.equal(err, null);
+
+                        //Verification
+                        assert.deepEqual(indexesInCollection4, correctAnswer4);
+
+                        done();
+                    });
+                });
             }
         );
     });
-
-    //Verification
-    //expect(result).to.deep.equal(correctAnswer);
 });
 
 // Drop collections
-//after(function() {
-//    async.parallel(
-//        [
-//            function(callback) {
-//                dbInTest.dropCollection("mongodbSyncIndexesCollection1", function(err) {
-//                    callback(err);
-//                });
-//            },
-//            function(callback) {
-//                dbInTest.dropCollection("mongodbSyncIndexesCollection2", function(err) {
-//                    callback(err);
-//                });
-//            },
-//            function(callback) {
-//                dbInTest.dropCollection("mongodbSyncIndexesCollection3", function(err) {
-//                    callback(err);
-//                });
-//            },
-//            function(callback) {
-//                dbInTest.dropCollection("mongodbSyncIndexesCollection4", function(err) {
-//                    callback(err);
-//                });
-//            }
-//        ],
-//        function(err) {
-//            assert.equal(err, null);
-//            db.close();
-//        }
-//    );
-//});
+after(function() {
+    async.parallel(
+        [
+            function(callback) {
+                dbInTest.dropCollection("mongodbSyncIndexesCollection1", function(err) {
+                    callback(err);
+                });
+            },
+            function(callback) {
+                dbInTest.dropCollection("mongodbSyncIndexesCollection2", function(err) {
+                    callback(err);
+                });
+            },
+            function(callback) {
+                dbInTest.dropCollection("mongodbSyncIndexesCollection3", function(err) {
+                    callback(err);
+                });
+            },
+            function(callback) {
+                dbInTest.dropCollection("mongodbSyncIndexesCollection4", function(err) {
+                    callback(err);
+                });
+            }
+        ],
+        function(err) {
+            assert.equal(err, null);
+            db.close();
+        }
+    );
+});

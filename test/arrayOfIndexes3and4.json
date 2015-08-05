@@ -16,16 +16,14 @@
   "mongodbSyncIndexesCollection4": [
     {
       "key": {
-        "newKey": 1
+        "newKey2": 0
       },
-      "name": "differentName",
-      "unique": true
-    },
-    {
-      "key": {
-        "newKey": -1
-      },
-      "sparse": true
+      "sparse": true,
+      "dropDups": false,
+      "w": 1,
+      "max": 20,
+      "expireAfterSeconds": 1,
+      "myPersonalizedProperty": true
     }
   ]
 }

@@ -1,9 +1,24 @@
 [
   {
     "key": {
-      "newKey": 1
+      "newKey2": 1
     },
-    "name": "differentName",
-    "unique": true
+    "name": "differentName2",
+    "unique": true,
+    "v": 1,
+    "min": 10,
+    "background": true,
+    "myPersonalizedProperty": "This will be accepted."
+  },
+  {
+    "key": {
+      "newKey2": 0
+    },
+    "sparse": true,
+    "dropDups": false,
+    "w": 1,
+    "max": 20,
+    "expireAfterSeconds": 1,
+    "myPersonalizedProperty": true
   }
 ]

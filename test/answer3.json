@@ -1,0 +1,27 @@
+[
+  {
+    "key": {
+      "_id": 1
+    },
+    "name": "_id_",
+    "ns": "test.mongodbSyncIndexesCollection3",
+    "v": 1
+  },
+  {
+    "key": {
+      "newKey": 1
+    },
+    "name": "differentName",
+    "unique": true,
+    "ns": "test.mongodbSyncIndexesCollection3",
+    "v": 1
+  },
+  {
+    "key": {
+      "newKey": -1
+    },
+    "name": "newKey_-1",
+    "ns": "test.mongodbSyncIndexesCollection3",
+    "v": 1
+  }
+]

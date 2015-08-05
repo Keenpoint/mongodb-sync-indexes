@@ -1,5 +1,16 @@
 [
   {
+    "key" : {
+      "_id" : 1
+    },
+    "name" : "im_different_but_nobody_cares"
+  },
+  {
+    "key" : {
+      "country_name" : 1
+    }
+  },
+  {
     "key": {
       "newKey": 1
     },
@@ -8,7 +19,8 @@
     "v": 1,
     "min": 10,
     "background": true,
-    "dropDups": true
+    "dropDups": true,
+    "myPersonalizedProperty": "This will be accepted."
   },
   {
     "key": {
@@ -20,6 +32,7 @@
     "w": 1,
     "j": true,
     "max": 20,
-    "expireAfterSeconds": 1
+    "expireAfterSeconds": 1,
+    "myPersonalizedProperty": true
   }
 ]

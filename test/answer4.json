@@ -1,0 +1,22 @@
+[
+  {
+    "key": {
+      "_id": 1
+    },
+    "name": "_id_",
+    "ns": "test.mongodbSyncIndexesCollection4",
+    "v": 1
+  },
+  {
+    "key": {
+      "newKey2": 0
+    },
+    "name": "newKey2_0",
+    "sparse": true,
+    "max": 20,
+    "expireAfterSeconds": 1,
+    "myPersonalizedProperty": true,
+    "ns": "test.mongodbSyncIndexesCollection4",
+    "v": 1
+  }
+]

@@ -8,6 +8,14 @@
     "ns" : "test.mongodbSyncIndexesCollection1"
   },
   {
+    "key": {
+      "country_name": 1
+    },
+    "name": "country_name_1",
+    "ns": "test.mongodbSyncIndexesCollection1",
+    "v": 1
+  },
+  {
     "v" : 1,
     "unique" : true,
     "key" : {
@@ -15,7 +23,8 @@
     },
     "name" : "differentName",
     "ns" : "test.mongodbSyncIndexesCollection1",
-    "min": 10
+    "min": 10,
+    "myPersonalizedProperty": "This will be accepted."
   },
   {
     "v" : 1,
@@ -27,6 +36,7 @@
     "ns" : "test.mongodbSyncIndexesCollection1",
     "sparse" : true,
     "max": 20,
-    "expireAfterSeconds": 1
+    "expireAfterSeconds": 1,
+    "myPersonalizedProperty": true
   }
 ]

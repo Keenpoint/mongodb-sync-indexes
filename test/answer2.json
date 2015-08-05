@@ -9,11 +9,25 @@
   },
   {
     "key": {
-      "newKey": 1
+      "newKey2": 1
     },
-    "name": "differentName",
+    "min": 10,
+    "myPersonalizedProperty": "This will be accepted.",
+    "name": "differentName2",
     "ns": "test.mongodbSyncIndexesCollection2",
     "unique": true,
+    "v": 1
+  },
+  {
+    "expireAfterSeconds": 1,
+    "key": {
+      "newKey2": 0
+    },
+    "max": 20,
+    "myPersonalizedProperty": true,
+    "name": "newKey2_0",
+    "ns": "test.mongodbSyncIndexesCollection2",
+    "sparse": true,
     "v": 1
   }
 ]

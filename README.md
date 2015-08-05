@@ -106,7 +106,7 @@ Finally, in your collection, the indexes are stored like this:
       "_id": 1
     },
     "name": "_id_",
-    "ns": "test.myCollection",
+    "ns": "test.IAmGoingBackTo505",
     "v": 1
   },
   {
@@ -114,7 +114,7 @@ Finally, in your collection, the indexes are stored like this:
       "importantField": 1
     },
     "name": "importantField_1",
-    "ns": "test.myCollection",
+    "ns": "test.IAmGoingBackTo505",
     "unique": true,
     "v": 1
   },
@@ -123,7 +123,7 @@ Finally, in your collection, the indexes are stored like this:
       "anotherField": 1
     },
     "name": "Heisenberg",
-    "ns": "test.myCollection",
+    "ns": "test.IAmGoingBackTo505",
     "sparse": true,
     "v": 1
   }
@@ -208,7 +208,7 @@ Finally, in the collection "BreakingBad" you'll see this:
       "_id": 1
     },
     "name": "_id_",
-    "ns": "test.mongodbSyncIndexesCollection3",
+    "ns": "test.BreakingBad",
     "v": 1
   },
   {
@@ -216,7 +216,7 @@ Finally, in the collection "BreakingBad" you'll see this:
       "I AM THE ONE WHO KNOCKS": 1
     },
     "name": "Heisenberg",
-    "ns": "test.mongodbSyncIndexesCollection3",
+    "ns": "test.BreakingBad",
     "unique": true,
     "v": 1
   },
@@ -225,7 +225,7 @@ Finally, in the collection "BreakingBad" you'll see this:
       "SAY MY NAME": 1
     },
     "name": "whoami",
-    "ns": "test.mongodbSyncIndexesCollection3",
+    "ns": "test.BreakingBad",
     "v": 1
   }
 ]
@@ -240,7 +240,7 @@ In the collection "Tinder":
       "_id": 1
     },
     "name": "_id_",
-    "ns": "test.mongodbSyncIndexesCollection4",
+    "ns": "test.Tinder",
     "v": 1
   },
   {
@@ -251,7 +251,7 @@ In the collection "Tinder":
     "min": 10,
     "max": 20,
     "name":  "geospatialIndex_1",
-    "ns": "test.mongodbSyncIndexesCollection4",
+    "ns": "test.Tinder",
     "sparse": true,
     "v": 1
   }

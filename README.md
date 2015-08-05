@@ -133,9 +133,13 @@ Finally, in your collection, the indexes are stored like this:
 ```
 
 See how: 
-1) Mongodb automatically creates the main index, the one with key {"_id": 1}
-2) When not specified, the name is also automatically created using the information available.
-3) When specified, the name provided is used.
+
+1) Mongodb automatically creates the main index, the one with key {"_id": 1};
+
+2) When not specified, the name is also automatically created using the information available;
+
+3) When specified, the name provided is used;
+
 4) Mongodb automatically adds the properties ns and v, which are ignored in our comparisons.
 
 - Updating a database

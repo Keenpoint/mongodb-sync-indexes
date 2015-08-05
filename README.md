@@ -36,7 +36,9 @@ Arguments:
 - Optionally, pass a callback. We don't pass any errors to your callback. The fatal errors (for example, when the first argument doesn't respect our patterns) will block the execution at the very beginning, while minor problems are simply logged.
 
 You can also use the event handler returned. He already listens to the following events:
+
 - "dropIndex", "createIndex", "droppedIndex", "createdIndex": for logging purposes
+
 - "done": to end execution, calling a callback if it's defined
 
 # Examples

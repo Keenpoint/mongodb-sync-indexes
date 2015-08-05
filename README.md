@@ -185,6 +185,8 @@ MongoClient.connect(url, function(err, db) {
 }
 ```
 
+Notice how we map the name of each collection we want to synchronize with the array of indexes desired.
+
 In the shell you'll see the following
 ```
 Creating index {"I AM THE ONE WHO KNOCKS":1} in collection BreakingBad...

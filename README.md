@@ -140,7 +140,11 @@ See how:
 
 3) When specified, the name provided is used;
 
-4) Mongodb automatically adds the properties ns and v, which are ignored in our comparisons.
+4) Mongodb automatically adds the properties ns and v, which are ignored in our comparisons;
+
+5) The property "w", defined in mongodb as the write concern (a guarantee that MongoDB provides when reporting on the success of a write operation), is not a property to be stored in the index itself.
+
+Be careful when defining the properties predefined in mongodb: their types must be respected.
 
 - Updating a database
 
@@ -265,3 +269,24 @@ In the collection "Tinder":
   }
 ]
 ```
+
+- Using the EventEmitter returned
+
+The code 
+
+```
+syncIndexes(indexList, collection, {log: false}, callback);
+```
+
+is equivalent to:
+
+```
+var eventHandler = syncIndexes(indexList, collection, {log: false});
+eventHandler.on("done", function() {
+      callback();
+});
+```
+
+This last structure can be used to define personalized listeners when the events "dropIndex", "createIndex", "droppedIndex" and "createdIndex" occur. 
+
+The difference between "dropIndex" and "droppedIndex" is: the former is called whenever an index in your collection in not in the list of indexes passed in the first argument; the latter is called when the drop operation is successful. The same happens for the creation events.

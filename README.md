@@ -1,6 +1,6 @@
 # mongodb-sync-indexes
 
-Synchronize the indexes of some mongodb database or collection using an object. Only indexes with different properties are dropped/created, so the changes can be properly logged.
+Synchronize the indexes of some mongodb database or collection with a provided object. Only indexes with different properties are dropped/created, so the changes can be properly logged.
 
 # Installation
 
@@ -26,17 +26,14 @@ var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
 
 Arguments:
 
-- An object with the desired indexes (cf. "Examples" and "First argument rules")
+- A list (array of indexes) or list map (object with an array of indexes for each collection name) with the desired indexes (cf. "Examples")
 
-- The mongodb collection or database to be synchronized. No need to bother with mongodb subtitilities, as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
+- The mongodb collection or database to be synchronized. No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
 
 - Optionally, pass execution options as an object:
-```
-      Name              Type              Default           Description
-      log               boolean           true              Controls logging activity in terminal
-```
+      - log: a boolean, true par default, that controls the logging activity in terminal
 
-- Optionally, pass a callback. We don't pass any errors to your callback. The fatal errors (for example, when the first argument that doesn't respect our patterns) will block the execution at the very beginning, while minor problems are simply logged.
+- Optionally, pass a callback. We don't pass any errors to your callback. The fatal errors (for example, when the first argument doesn't respect our patterns) will block the execution at the very beginning, while minor problems are simply logged.
 
 You can also use the event handler returned. He already listens to the following events:
 - "dropIndex", "createIndex", "droppedIndex", "createdIndex": for logging purposes
@@ -49,22 +46,24 @@ You can also use the event handler returned. He already listens to the following
 ```javascript
 var assert = require("assert"),
     syncIndexes = require('mongodb-sync-indexes');
- 
-// Normally you'll store this variable in a .json file
-var arrayOfIndexes = 
+    
+// Connection URL
+var url = "mongodb://localhost:27017/test";
+    
+// You can also store this structure in a .json file
+var indexList = 
             [
               {
-                "key": { // key is mandatory
-                  "country": 1
+                "key": {
+                  "importantField": 1
                 },
-                "unique": true,
-                "myPersonalizedProperty": "This will be accepted." // we can create our own properties
+                "unique": true
               },
               {
-                "key": { // key is mandatory
-                  "population": 1
+                "key": {
+                  "anotherField": 1
                 },
-                "name": "pop", // if you a specific name, this property becomes important for index comparison
+                "name": "Heisenberg",
                 "sparse": true,
                 "w": 1
               }
@@ -73,26 +72,29 @@ var arrayOfIndexes =
 MongoClient.connect(url, function(err, db) {
       assert.equal(err, null);
       
-      collection = db.collection("myCollection");
+      collection = db.collection("IAmGoingBackTo505");
       
+      // We create an index that's not in arrayOfIndexes: it'll be dropped.
       collection.createIndex({country_name: 1}, function(err) {
             assert.equal(err, null);
             
-            syncIndexes(arrayOfIndexes, collection);
+            syncIndexes(indexList, collection);
       }
 }
 ```
 
 In the shell you'll see the following
 ```
-Dropping index {"country_name":1} in collection myCollection...
+Dropping index {"country_name":1} in collection IAmGoingBackTo505...
 Done. Index dropped has name country_name_1
 
-Creating index {"country":1} in collection myCollection...
-Done. Index created has name country_1
+Creating index {"importantField":1} in collection IAmGoingBackTo505...
+Done. Index created has name importantField_1
 
-Creating index {"population":1} in collection myCollection...
-Done. Index created has name pop
+Creating index {"anotherField":1} in collection IAmGoingBackTo505...
+Done. Index created has name Heisenberg
+
+Finished synchronization.
 ```
 
 Finally, in your collection, the indexes are stored like this:
@@ -109,19 +111,18 @@ Finally, in your collection, the indexes are stored like this:
   },
   {
     "key": {
-      "country": 1
+      "importantField": 1
     },
-    "myPersonalizedProperty": "This will be accepted.",
-    "name": "country_1",
+    "name": "importantField_1",
     "ns": "test.myCollection",
     "unique": true,
     "v": 1
   },
   {
     "key": {
-      "population": 1
+      "anotherField": 1
     },
-    "name": "pop",
+    "name": "Heisenberg",
     "ns": "test.myCollection",
     "sparse": true,
     "v": 1
@@ -129,64 +130,76 @@ Finally, in your collection, the indexes are stored like this:
 ]
 ```
 
-- Updating an entire database
+See how: 
+1) Mongodb automatically creates the main index, the one with key {"_id": 1}
+2) When not specified, the name is also automatically created using the information available.
+3) When specified, the name provided is used.
+4) Mongodb automatically adds the properties ns and v, which are ignored in our comparisons.
+
+- Updating a database
 
 ```javascript
 var assert = require("assert"),
     syncIndexes = require('mongodb-sync-indexes');
  
-// Normally you'll store this variable in a .json file
-var arraysOfIndexes = 
+// Connection URL
+var url = "mongodb://localhost:27017/test"; 
+ 
+// You can also store this structure in a .json file
+var indexListMap = 
             {
-              "firstCollection": [
+              "BreakingBad": [
                 {
                   "key": {
-                    "city": 1
+                    "I AM THE ONE WHO KNOCKS": 1
                   },
-                  "name": "city",
+                  "name": "Heisenberg",
                   "unique": true
                 },
                 {
                   "key": {
-                    "anotherKey": 1
-                  }
+                    "SAY MY NAME": 1
+                  },
+                  "name": "whoami"
                 }
               ],
-              "secondCollection": [
+              "Tinder": [
                 {
                   "key": {
-                    "aCollectionFieldHere": 1
+                    "geospatialIndex": 1
                   },
                   "sparse": true,
                   "dropDups": false,
                   "w": 1,
+                  "min": 10,
                   "max": 20,
-                  "expireAfterSeconds": 1,
-                  "myPersonalizedProperty": true
+                  "expireAfterSeconds": 1
                 }
               ]
-            }
+            };
 
 MongoClient.connect(url, function(err, db) {
       assert.equal(err, null);
             
-      syncIndexes(arraysOfIndexes, collection);
+      syncIndexes(indexListMap, db);
 }
 ```
 
 In the shell you'll see the following
 ```
-Dropping index {"country_name":1} in collection myCollection...
-Done. Index dropped has name country_name_1
+Creating index {"I AM THE ONE WHO KNOCKS":1} in collection mongodbSyncIndexesCollection3...
+Done. Index created has name Heisenberg
 
-Creating index {"country":1} in collection myCollection...
-Done. Index created has name country_1
+Creating index {"SAY MY NAME":1} in collection mongodbSyncIndexesCollection3...
+Done. Index created has name whoami
 
-Creating index {"population":1} in collection myCollection...
-Done. Index created has name pop
+Creating index {"geospatialIndex":1} in collection mongodbSyncIndexesCollection4...
+Done. Index created has name geospatialIndex_1
+
+Finished synchronization.
 ```
 
-Finally, in your collection, the indexes are stored like this:
+Finally, in the collection "BreakingBad" you'll see this:
 
 ```
 [
@@ -195,31 +208,52 @@ Finally, in your collection, the indexes are stored like this:
       "_id": 1
     },
     "name": "_id_",
-    "ns": "test.myCollection",
+    "ns": "test.mongodbSyncIndexesCollection3",
     "v": 1
   },
   {
     "key": {
-      "country": 1
+      "I AM THE ONE WHO KNOCKS": 1
     },
-    "myPersonalizedProperty": "This will be accepted.",
-    "name": "country_1",
-    "ns": "test.myCollection",
+    "name": "Heisenberg",
+    "ns": "test.mongodbSyncIndexesCollection3",
     "unique": true,
     "v": 1
   },
   {
     "key": {
-      "population": 1
+      "SAY MY NAME": 1
     },
-    "name": "pop",
-    "ns": "test.myCollection",
-    "sparse": true,
+    "name": "whoami",
+    "ns": "test.mongodbSyncIndexesCollection3",
     "v": 1
   }
 ]
 ```
 
-# First argument rules
+In the collection "Tinder":
 
-tirar comentarios do JSON e colocar aqui
+```
+[
+  {
+    "key": {
+      "_id": 1
+    },
+    "name": "_id_",
+    "ns": "test.mongodbSyncIndexesCollection4",
+    "v": 1
+  },
+  {
+    "expireAfterSeconds": 1,
+    "key": {
+      "geospatialIndex": 1
+    },
+    "min": 10,
+    "max": 20,
+    "name":  "geospatialIndex_1",
+    "ns": "test.mongodbSyncIndexesCollection4",
+    "sparse": true,
+    "v": 1
+  }
+]
+```

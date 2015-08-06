@@ -8,18 +8,14 @@ Synchronize the indexes of **mongodb collections** with a list of index objects,
 npm i mongodb-sync-indexes
 ```
 
-# Usage 
-
-- Require the module
+# Usage
 
 ```javascript
 var syncIndexes = require('mongodb-sync-indexes');
 
-[...]
-
 var eventHandler = syncIndexes(indexList, collection, [options], [callback]);
 
-or
+// or
 
 var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
 ```

@@ -77,16 +77,16 @@ MongoClient.connect(url, function(err, db) {
       
       collection = db.collection("IAmGoingBackTo505");
       
-      // We create an index that's not in arrayOfIndexes: it'll be dropped.
+      // We create an index that's not in the indexList: it'll be dropped.
       collection.createIndex({country_name: 1}, function(err) {
             assert.equal(err, null);
             
             syncIndexes(indexList, collection);
       }
-}
+});
 ```
 
-In the console you'll see the following
+In the shell you'll see the following:
 ```
 Dropping index {"country_name":1} in collection IAmGoingBackTo505...
 Done. Index dropped has name country_name_1
@@ -141,13 +141,13 @@ See how:
 
 3) When specified, the name provided is used;
 
-4) Mongodb automatically adds the properties ns and v, which are ignored in our comparisons;
+4) Mongodb automatically adds the properties "ns" and "v", which are ignored in our comparisons;
 
-5) The property "w", defined in mongodb as the write concern (a guarantee that MongoDB provides when reporting on the success of a write operation), is not a property to be stored in the index itself.
+5) The property "w", defined in mongodb as the write concern (a guarantee that MongoDB provides when reporting on the success of a write operation), is not a property to be stored in the index itself;
 
-6) Be careful when defining the properties predefined in mongodb: their types must be respected.
+6) Be careful when defining the properties predefined in mongodb: their types must be respected (name must be a string, etc);
 
-7) No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
+7) No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc. This is all taken care of.
 
 8) We don't pass any errors to the callback. Use the "error" event.
 
@@ -196,12 +196,12 @@ MongoClient.connect(url, function(err, db) {
       assert.equal(err, null);
             
       syncIndexes(indexListMap, db);
-}
+});
 ```
 
 Notice how we map the name of each collection we want to synchronize with the array of indexes desired.
 
-In the console you'll see the following
+In the shell you'll see the following:
 ```
 Creating index {"I AM THE ONE WHO KNOCKS":1} in collection BreakingBad...
 Done. Index created has name Heisenberg
@@ -247,7 +247,7 @@ Finally, in the collection "BreakingBad" you'll see this:
 ]
 ```
 
-In the collection "Tinder":
+Meanwhile, in the collection "Tinder":
 
 ```
 [

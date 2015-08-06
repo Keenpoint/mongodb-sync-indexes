@@ -1,6 +1,6 @@
 # mongodb-sync-indexes
 
-Synchronize the indexes of some mongodb database or collection with a provided object. Only indexes with different properties are dropped/created, so the changes can be properly logged.
+Synchronize the indexes of **mongodb collections** with a list of index objects, structured as the [mongo shell output](http://docs.mongodb.org/manual/reference/method/db.collection.getIndexes). Only the differences are applied, and logged.
 
 # Installation
 

@@ -41,7 +41,7 @@ var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
       - *dropIndex*: Before dropping an index.
       - *createdIndex*: When the index is successfully created.
       - *droppedIndex*: When the index is successfully dropped.
-      - *done*: Fired at the end of execution. If a callback is provided in arguments, it is attached to this event.
+      - *done*: Fired at the end of execution. If a callback is provided in the arguments, it is attached to this event.
 
 # Examples
 

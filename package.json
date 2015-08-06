@@ -24,7 +24,8 @@
     "sync",
     "synchronization",
     "index",
-    "mongodb"
+    "mongodb",
+    "mongo"
   ],
   "license": "MIT",
   "bugs": {

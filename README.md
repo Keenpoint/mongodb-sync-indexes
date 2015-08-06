@@ -59,23 +59,22 @@ var assert = require("assert"),
 var url = "mongodb://localhost:27017/test";
     
 // You can also store this structure in a .json file
-var indexList = 
-            [
-              {
-                "key": {
-                  "importantField": 1
-                },
-                "unique": true
-              },
-              {
-                "key": {
-                  "anotherField": 1
-                },
-                "name": "Heisenberg",
-                "sparse": true,
-                "w": 1
-              }
-            ];
+var indexList = [
+    {
+        "key": {
+            "importantField": 1
+        },
+        "unique": true
+    },
+    {
+        "key": {
+            "anotherField": 1
+        },
+        "name": "Heisenberg",
+        "sparse": true,
+        "w": 1
+    }
+];
 
 MongoClient.connect(url, function(err, db) {
       assert.equal(err, null);
@@ -91,7 +90,7 @@ MongoClient.connect(url, function(err, db) {
 }
 ```
 
-In the shell you'll see the following
+In the console you'll see the following
 ```
 Dropping index {"country_name":1} in collection IAmGoingBackTo505...
 Done. Index dropped has name country_name_1
@@ -109,32 +108,32 @@ Finally, in your collection, the indexes are stored like this:
 
 ```
 [
-  {
-    "key": {
-      "_id": 1
+    {
+        "key": {
+            "_id": 1
+        },
+        "name": "_id_",
+        "ns": "test.IAmGoingBackTo505",
+        "v": 1
     },
-    "name": "_id_",
-    "ns": "test.IAmGoingBackTo505",
-    "v": 1
-  },
-  {
-    "key": {
-      "importantField": 1
+    {
+        "key": {
+            "importantField": 1
+        },
+        "name": "importantField_1",
+        "ns": "test.IAmGoingBackTo505",
+        "unique": true,
+        "v": 1
     },
-    "name": "importantField_1",
-    "ns": "test.IAmGoingBackTo505",
-    "unique": true,
-    "v": 1
-  },
-  {
-    "key": {
-      "anotherField": 1
-    },
-    "name": "Heisenberg",
-    "ns": "test.IAmGoingBackTo505",
-    "sparse": true,
-    "v": 1
-  }
+    {
+        "key": {
+            "anotherField": 1
+        },
+        "name": "Heisenberg",
+        "ns": "test.IAmGoingBackTo505",
+        "sparse": true,
+        "v": 1
+    }
 ]
 ```
 
@@ -206,7 +205,7 @@ MongoClient.connect(url, function(err, db) {
 
 Notice how we map the name of each collection we want to synchronize with the array of indexes desired.
 
-In the shell you'll see the following
+In the console you'll see the following
 ```
 Creating index {"I AM THE ONE WHO KNOCKS":1} in collection BreakingBad...
 Done. Index created has name Heisenberg
@@ -224,31 +223,31 @@ Finally, in the collection "BreakingBad" you'll see this:
 
 ```
 [
-  {
-    "key": {
-      "_id": 1
+    {
+        "key": {
+            "_id": 1
+        },
+        "name": "_id_",
+        "ns": "test.BreakingBad",
+        "v": 1
     },
-    "name": "_id_",
-    "ns": "test.BreakingBad",
-    "v": 1
-  },
-  {
-    "key": {
-      "I AM THE ONE WHO KNOCKS": 1
+    {
+        "key": {
+            "I AM THE ONE WHO KNOCKS": 1
+        },
+        "name": "Heisenberg",
+        "ns": "test.BreakingBad",
+        "unique": true,
+        "v": 1
     },
-    "name": "Heisenberg",
-    "ns": "test.BreakingBad",
-    "unique": true,
-    "v": 1
-  },
-  {
-    "key": {
-      "SAY MY NAME": 1
-    },
-    "name": "whoami",
-    "ns": "test.BreakingBad",
-    "v": 1
-  }
+    {
+        "key": {
+            "SAY MY NAME": 1
+        },
+        "name": "whoami",
+        "ns": "test.BreakingBad",
+        "v": 1
+    }
 ]
 ```
 
@@ -256,26 +255,26 @@ In the collection "Tinder":
 
 ```
 [
-  {
-    "key": {
-      "_id": 1
+    {
+        "key": {
+            "_id": 1
+        },
+        "name": "_id_",
+        "ns": "test.Tinder",
+        "v": 1
     },
-    "name": "_id_",
-    "ns": "test.Tinder",
-    "v": 1
-  },
-  {
-    "expireAfterSeconds": 1,
-    "key": {
-      "geospatialIndex": 1
-    },
-    "min": 10,
-    "max": 20,
-    "name":  "geospatialIndex_1",
-    "ns": "test.Tinder",
-    "sparse": true,
-    "v": 1
-  }
+    {
+        "expireAfterSeconds": 1,
+        "key": {
+            "geospatialIndex": 1
+        },
+        "min": 10,
+        "max": 20,
+        "name":  "geospatialIndex_1",
+        "ns": "test.Tinder",
+        "sparse": true,
+        "v": 1
+    }
 ]
 ```
 

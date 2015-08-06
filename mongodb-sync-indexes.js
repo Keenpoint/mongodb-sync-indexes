@@ -14,7 +14,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
     // Handlers
 
-    if(options === undefined || options.log !== false) {
+    if(options === undefined || options.log) {
         eventHandler.on("dropIndex", function(key, collection) {
             console.log("Dropping index " + key + " in collection " + collection.s.name + "...");
         });
@@ -35,11 +35,11 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     // This listener can't be inside the "if" above: the minor errors would stop the program flow because of
     // the error listener by default.
     eventHandler.on("error", function(err) {
-        if(options === undefined || options.log !== false) console.log(err);
+        if(options === undefined || options.log) console.log(err);
     });
 
     eventHandler.on("done", function() {
-        if(options === undefined || options.log !== false) console.log("Finished synchronization.\n\n");
+        if(options === undefined || options.log) console.log("Finished synchronization.\n\n");
         if(mainCallback) return mainCallback();
     });
 

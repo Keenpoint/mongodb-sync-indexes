@@ -8,7 +8,7 @@
       "email": "github@natura-rerum.com"
     }
   ],
-  "description": "Synchronize the most relevant properties of both an array of indexes (objects in index format) and the indexes of a mongodb database",
+  "description": "Synchronize the indexes of mongodb collections with a list of index objects, structured as the mongo shell output.",
   "main": "syncIndexes.js",
   "directories": {
     "test": "test"
@@ -22,11 +22,9 @@
   },
   "keywords": [
     "sync",
+    "synchronization",
     "index",
-    "mongodb",
-    "pointer",
-    "serialization",
-    "navigation"
+    "mongodb"
   ],
   "license": "MIT",
   "bugs": {

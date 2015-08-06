@@ -43,10 +43,6 @@ var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
       - *droppedIndex*: When the index is successfully dropped.
       - *done*: Fired at the end of execution. If a callback is provided in arguments, it is attached to this event.
 
-This last structure can be used to define personalized listeners when the events "dropIndex", "createIndex", "droppedIndex" and "createdIndex" occur. 
-
-The difference between "dropIndex" and "droppedIndex" is: the former is called whenever an index in your collection in not in the list of indexes passed in the first argument; the latter is called when the drop operation is successful. The same happens for the creation events.
-
 # Examples
 
 - Updating a collection
@@ -166,34 +162,34 @@ var url = "mongodb://localhost:27017/test";
  
 // You can also store this structure in a .json file
 var indexListMap = {
-      "BreakingBad": [
-            {
-                  "key": {
-                        "I AM THE ONE WHO KNOCKS": 1
-                  },
-                  "name": "Heisenberg",
-                  "unique": true
+    "BreakingBad": [
+        {
+            "key": {
+                "I AM THE ONE WHO KNOCKS": 1
             },
-            {
-                  "key": {
-                        "SAY MY NAME": 1
-                  },
-                  "name": "whoami"
-            }
-      ],
-      "Tinder": [
-            {
-                  "key": {
-                        "geospatialIndex": 1
-                  },
-                  "sparse": true,
-                  "dropDups": false,
-                  "w": 1,
-                  "min": 10,
-                  "max": 20,
-                  "expireAfterSeconds": 1
-            }
-      ]
+            "name": "Heisenberg",
+            "unique": true
+        },
+        {
+            "key": {
+                "SAY MY NAME": 1
+            },
+            "name": "whoami"
+        }
+    ],
+    "Tinder": [
+        {
+            "key": {
+                "geospatialIndex": 1
+            },
+            "sparse": true,
+            "dropDups": false,
+            "w": 1,
+            "min": 10,
+            "max": 20,
+            "expireAfterSeconds": 1
+        }
+    ]
 };
 
 MongoClient.connect(url, function(err, db) {
@@ -296,5 +292,3 @@ eventHandler.on("done", function() {
 ```
 
 This last structure can be used to define personalized listeners when the events "dropIndex", "createIndex", "droppedIndex" and "createdIndex" occur. 
-
-The difference between "dropIndex" and "droppedIndex" is: the former is called whenever an index in your collection in not in the list of indexes passed in the first argument; the latter is called when the drop operation is successful. The same happens for the creation events.

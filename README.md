@@ -28,7 +28,7 @@ var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
 
 - **collection**: The mongodb collection to synchronize indexes. 
 
-- **db**: The db where the collections will synchronize indexes.
+- **db**: The db containing the collections to synchronize indexes.
 
 - **options**: Optional object. Configuration of the synchronization. Possible options :
       - *log*: Boolean. Default: true. Logs all events with useful informations.

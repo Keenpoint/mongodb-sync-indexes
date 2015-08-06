@@ -20,22 +20,32 @@ var eventHandler = syncIndexes(indexList, collection, [options], [callback]);
 var eventHandler = syncIndexes(indexListMap, db, [options], [callback]);
 ```
 
-Arguments:
+**Arguments:**
 
-- A list (array of indexes) or list map (object with an array of indexes for each collection name) with the desired indexes (cf. "Examples")
+- **indexList**: Array of indexes.
 
-- The mongodb collection or database to be synchronized. No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
+- **indexListMap**: An object with collection names as keys and indexLists as values.
 
-- Optionally, pass execution options as an object:
-      - log: a boolean, true by default, that controls the logging activity in the terminal
+- **collection**: The mongodb collection to synchronize indexes. 
 
-- Optionally, pass a callback. We don't pass any errors to your callback. The fatal errors (for example, when the first argument doesn't respect our patterns) will block the execution at the very beginning, while minor problems are simply logged.
+- **db**: The db where the collections will synchronize indexes.
 
-You can also use the event handler returned. He already listens to the following events:
+- **options**: Optional object. Configuration of the synchronization. Possible options :
+      - *log*: Boolean. Default: true. Logs all events with useful informations.
 
-- "dropIndex", "createIndex", "droppedIndex", "createdIndex": for logging purposes
+- **callback**: Optional function. Called at the end of synchronization.
 
-- "done": to end execution, calling a callback if it's defined
+**Returns:**
+- **eventEmitter**: events: 
+      - *createIndex*: Before creating an index.
+      - *dropIndex*: Before dropping an index.
+      - *createdIndex*: When the index is successfully created.
+      - *droppedIndex*: When the index is successfully dropped.
+      - *done*: Fired at the end of execution. If a callback is provided in arguments, it is attached to this event.
+
+This last structure can be used to define personalized listeners when the events "dropIndex", "createIndex", "droppedIndex" and "createdIndex" occur. 
+
+The difference between "dropIndex" and "droppedIndex" is: the former is called whenever an index in your collection in not in the list of indexes passed in the first argument; the latter is called when the drop operation is successful. The same happens for the creation events.
 
 # Examples
 
@@ -140,7 +150,11 @@ See how:
 
 5) The property "w", defined in mongodb as the write concern (a guarantee that MongoDB provides when reporting on the success of a write operation), is not a property to be stored in the index itself.
 
-Be careful when defining the properties predefined in mongodb: their types must be respected.
+6) Be careful when defining the properties predefined in mongodb: their types must be respected.
+
+7) No need to bother with mongodb subtitilities, such as: necessity of creating the collection to access its indexes, impossibility of dropping the main index, etc.
+
+8) We don't pass any errors to the callback. Use the "error" event.
 
 - Updating a database
 
@@ -152,27 +166,26 @@ var assert = require("assert"),
 var url = "mongodb://localhost:27017/test"; 
  
 // You can also store this structure in a .json file
-var indexListMap = 
+var indexListMap = {
+      "BreakingBad": [
             {
-              "BreakingBad": [
-                {
                   "key": {
-                    "I AM THE ONE WHO KNOCKS": 1
+                        "I AM THE ONE WHO KNOCKS": 1
                   },
                   "name": "Heisenberg",
                   "unique": true
-                },
-                {
+            },
+            {
                   "key": {
-                    "SAY MY NAME": 1
+                        "SAY MY NAME": 1
                   },
                   "name": "whoami"
-                }
-              ],
-              "Tinder": [
-                {
+            }
+      ],
+      "Tinder": [
+            {
                   "key": {
-                    "geospatialIndex": 1
+                        "geospatialIndex": 1
                   },
                   "sparse": true,
                   "dropDups": false,
@@ -180,9 +193,9 @@ var indexListMap =
                   "min": 10,
                   "max": 20,
                   "expireAfterSeconds": 1
-                }
-              ]
-            };
+            }
+      ]
+};
 
 MongoClient.connect(url, function(err, db) {
       assert.equal(err, null);

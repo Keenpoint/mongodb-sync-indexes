@@ -14,32 +14,46 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
     // Handlers
 
-    if(options === undefined || options.log) {
-        eventHandler.on("dropIndex", function(key, collection) {
-            console.log("Dropping index " + key + " in collection " + collection.s.name + "...");
+    if(options === undefined || options.log === undefined || options.log) {
+        eventHandler.on("dropIndex", function(collection, index) {
+            console.log("Dropping index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...");
         });
 
-        eventHandler.on("createIndex", function(key, collection) {
-            console.log("Creating index " + key + " in collection " + collection.s.name + "...");
+        eventHandler.on("createIndex", function(collection, index) {
+            console.log("Creating index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...");
         });
 
-        eventHandler.on("droppedIndex", function(name) {
-            console.log("Done. Index dropped has name " + name + "\n");
+        eventHandler.on("droppedIndex", function(collection, name, index) {
+            console.log("Done. Index dropped has name " + name);
+
+            if(options !== undefined && options.verbose) {
+                console.log("[VERBOSE] Index is:");
+                console.log(JSON.stringify(index, null, 2));
+            }
+
+            console.log();
         });
 
-        eventHandler.on("createdIndex", function(name) {
-            console.log("Done. Index created has name " + name + "\n");
+        eventHandler.on("createdIndex", function(collection, name, index) {
+            console.log("Done. Index created has name " + name);
+
+            if(options !== undefined && options.verbose) {
+                console.log("[VERBOSE] Index is:");
+                console.log(JSON.stringify(index, null, 2));
+            }
+
+            console.log();
         });
     }
 
     // This listener can't be inside the "if" above: the minor errors would stop the program flow because of
     // the error listener by default.
     eventHandler.on("error", function(err) {
-        if(options === undefined || options.log) console.log(err);
+        if(options === undefined || options.log === undefined || options.log) console.log(err);
     });
 
     eventHandler.on("done", function() {
-        if(options === undefined || options.log) console.log("Finished synchronization.\n\n");
+        if(options === undefined || options.log === undefined || options.log) console.log("Finished synchronization.\n\n");
         if(mainCallback) return mainCallback();
     });
 
@@ -59,7 +73,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
             tasks.push(function(_callback) {
 
-                eventHandler.emit("dropIndex", JSON.stringify(indexToDrop.key), collection);
+                eventHandler.emit("dropIndex", collection, indexToDrop);
 
                 collection.dropIndex(indexToDrop.key, function(err) {
 
@@ -67,7 +81,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                         eventHandler.emit("error", err);
                     }
                     else {
-                        eventHandler.emit("droppedIndex", indexToDrop.name);
+                        eventHandler.emit("droppedIndex", collection, indexToDrop.name, indexToDrop);
                     }
 
 
@@ -92,7 +106,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         _.map(indexesToCreate, function(indexToCreate) {
             tasks.push(function(_callback) {
 
-                eventHandler.emit("createIndex", JSON.stringify(indexToCreate.key), collection);
+                eventHandler.emit("createIndex", collection, indexToCreate);
 
                 var options = getOptionsFromCleanIndex(indexToCreate);
 
@@ -102,7 +116,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                         eventHandler.emit("error", err);
                     }
                     else {
-                        eventHandler.emit("createdIndex", indexName);
+                        eventHandler.emit("createdIndex", collection, indexName, indexToCreate);
                     }
 
                     _callback();

@@ -85,7 +85,7 @@ describe("Sync between array and collection.", function() {
                 },
                 // Put some indexes in database to test "drop"
                 function(callback) {
-                    collection.createIndex({country_name: 1},function(err) {
+                    collection.createIndex({country_name: 1}, function(err) {
                         callback(err);
                     });
                 },
@@ -169,7 +169,7 @@ describe("Sync between object of arrays and database.", function() {
         var arrayOfIndexes3and4 = require("./arrayOfIndexes3and4.json");
 
         var correctAnswer3 = require("./answer3.json"),
-        correctAnswer4 = require("./answer4.json");
+            correctAnswer4 = require("./answer4.json");
 
         async.series(
             [

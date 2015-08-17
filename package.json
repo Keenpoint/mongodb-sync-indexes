@@ -9,7 +9,7 @@
     }
   ],
   "description": "Synchronize the indexes of mongodb collections with a list of index objects, structured as the mongo shell output.",
-  "main": "syncIndexes.js",
+  "main": "mongodb-sync-indexes.js",
   "directories": {
     "test": "test"
   },

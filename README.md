@@ -324,3 +324,22 @@ The result will be something like:
 {"newKey":1} -> myCollectionName
 {"newKey2":1} -> myCollectionName
 ```
+
+However, if you want to display this message only after being sure the index was inserted in the collection, use the event "createdIndex" instead:
+
+```javascript
+var eventHandler = syncIndexes(indexList, collection, {log: false}, callback);
+
+eventHandler.on("createdIndex", function(collection, name, index) {
+      console.log("Index created has name " + name + ". It has the key " + JSON.stringify(index.key));
+});
+```
+
+will give:
+
+```
+Index created has name personalizedName. It has the key {"newKey":1}
+Index created has name newKey2_1. It has the key {"newKey2":1}
+```
+
+The events *dropIndex* and *droppedIndex* can be configured analogously.

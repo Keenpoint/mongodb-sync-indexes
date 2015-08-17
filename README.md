@@ -325,7 +325,7 @@ The result will be something like:
 {"newKey2":1} -> myCollectionName
 ```
 
-However, if you want to display this message only after being sure the index was inserted in the collection, use the event "createdIndex" instead:
+However, if you want to display this message only after being sure the index was inserted in the collection, use the event *createdIndex* instead:
 
 ```javascript
 var eventHandler = syncIndexes(indexList, collection, {log: false}, callback);

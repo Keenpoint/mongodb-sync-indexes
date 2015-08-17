@@ -279,13 +279,13 @@ Meanwhile, in the collection "Tinder":
 
 The code 
 
-```
+```javascript
 syncIndexes(indexList, collection, {log: false}, callback);
 ```
 
 is equivalent to:
 
-```
+```javascript
 var eventHandler = syncIndexes(indexList, collection, {log: false});
 eventHandler.on("done", function() {
       callback();

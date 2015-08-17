@@ -292,9 +292,9 @@ eventHandler.on("done", function() {
 });
 ```
 
-as the callback passed as argument (if it's passed at all) is only called on the listener "done".
+as the callback passed as argument (if it's passed at all) is only called on the listener *done*.
 
-This last structure can be used to define personalized listeners when the events "dropIndex", "createIndex", "droppedIndex" and "createdIndex" occur. To do so, it's important to know the information "emitted" when these events are fired:
+This last structure can be used to define personalized listeners when the events *dropIndex*, *createIndex*, *droppedIndex* and *createdIndex* occur. To do so, it's important to know the information "emitted" when these events are fired:
 
 - **dropIndex, createIndex**: arguments:
       - *collection* 

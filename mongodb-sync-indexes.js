@@ -34,10 +34,8 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         verboseMsg("[VERBOSE] Index created is:\n" + JSON.stringify(index, null, 2) + "\n", options);
     });
 
-    // This listener can't be inside the "if" above: the minor errors would stop the program flow because of
-    // the error listener by default.
     eventHandler.on("error", function(err) {
-        eventMsg(err); //TODO
+        console.log(err)
     });
 
     eventHandler.on("done", function() {
@@ -73,13 +71,8 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
                 collection.dropIndex(indexToDrop.key, function(err) {
 
-                    if(err) {
-                        eventHandler.emit("error", err);
-                    }
-                    else {
+                    err ? eventHandler.emit("error", err) :
                         eventHandler.emit("droppedIndex", collection, indexToDrop.name, indexToDrop, options);
-                    }
-
 
                     _callback();
                 });
@@ -108,12 +101,8 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
                 collection.createIndex(indexToCreate.key, optionsInCreation, function(err, indexName) {
 
-                    if(err) {
-                        eventHandler.emit("error", err);
-                    }
-                    else {
+                    err ? eventHandler.emit("error", err) :
                         eventHandler.emit("createdIndex", collection, indexName, indexToCreate, options);
-                    }
 
                     _callback();
                 });

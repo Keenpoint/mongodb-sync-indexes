@@ -15,12 +15,12 @@ var isArrayOfIndexes = function(arrayOfIndexes) {
     return isArrayOfObjects;
 };
 
-var infoEvents = [
-    "createIndex",
-    "createdIndex",
-    "dropIndex",
-    "droppedIndex"
-];
+var infoByEvent = {
+    createIndex: "Creating index %s",
+    createdIndex: "Index %s created",
+    dropIndex: "Dropping index %s",
+    droppedIndex: "Index %s dropped"
+};
 
 //TODO: move all function declarations outside of syncIndexes
 var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCallback) {
@@ -35,11 +35,11 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     // Handlers
 
     if(options.log) {
-        infoEvents.forEach(function(event) {
+    _.forEach(infoByEvent, function(eventInfo, event) {
             eventHandler.on(event, function(collection, index) {
-                var indexInfo = event === "createIndex" ? ("with keys " + JSON.stringify(index.key)) : index.name;
+                var indexData = event === "createIndex" ? ("with key " + JSON.stringify(index.key)) : index.name;
 
-                console.log("[Collection %s][%s] Index %s", collection.s.name, event, indexInfo);
+                console.log("[Collection %s][%s\t] " + eventInfo, collection.s.name, event, indexData);
             });
         });
 

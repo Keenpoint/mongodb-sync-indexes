@@ -7,47 +7,54 @@ var toIgnoreInArray = ["background", "dropUps"],
     toIgnoreInDatabase = ["v", "ns"],
     toIgnoreIfUndefined = ["name"];
 
+var isArrayOfIndexes = function(arrayOfIndexes) {
+    var isArrayOfObjects = _.isArray(arrayOfIndexes) && ! arrayOfIndexes.some(function(index) {
+            return ! _.isPlainObject(index);
+    });
+    if(isArrayOfObjects) assert(_.every(arrayOfIndexes, "key"), "Your array has at least one index without the 'key' property");
+    return isArrayOfObjects;
+};
+
+var infoEvents = [
+    "createIndex",
+    "createdIndex",
+    "dropIndex",
+    "droppedIndex"
+];
+
+//TODO: move all function declarations outside of syncIndexes
 var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCallback) {
+    options = _.defaults(options, {
+        log: true,
+        verbose: false
+    });
 
     var EventHandlerClass = events.EventEmitter,
         eventHandler = new EventHandlerClass();
 
     // Handlers
 
-    eventHandler.on("dropIndex", function(collection, index, options) {
-        eventMsg("Dropping index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...", options)
-    });
+    if(options.log) {
+        infoEvents.forEach(function(event) {
+            eventHandler.on(event, function(collection, index) {
+                var indexInfo = event === "createIndex" ? ("with keys " + JSON.stringify(index.key)) : index.name;
 
-    eventHandler.on("createIndex", function(collection, index, options) {
-        eventMsg("Creating index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...", options);
-    });
+                console.log("[Collection %s][%s] Index %s", collection.s.name, event, indexInfo);
+            });
+        });
 
-    eventHandler.on("droppedIndex", function(collection, name, index, options) {
-        eventMsg("Done. Index dropped has name " + name, options);
+        eventHandler.on("error", function(err) {
+            console.log(err);
+        });
 
-        verboseMsg("[VERBOSE] Index dropped is:\n" + JSON.stringify(index, null, 2) + "\n", options);
-    });
+        eventHandler.on("done", function() {
+            console.log("Finished synchronization.\n\n");
+        });
+    }
 
-    eventHandler.on("createdIndex", function(collection, name, index, options) {
-        eventMsg("Done. Index created has name " + name, options);
-
-        verboseMsg("[VERBOSE] Index created is:\n" + JSON.stringify(index, null, 2) + "\n", options);
-    });
-
-    eventHandler.on("error", function(err) {
-        console.log(err)
-    });
-
-    eventHandler.on("done", function() {
-        if(options === undefined || options.log === undefined || options.log) console.log("Finished synchronization.\n\n");
-        if(mainCallback) return mainCallback();
-    });
+    if(mainCallback) eventHandler.on("done", mainCallback);
 
     // -- Handlers
-
-    var eventMsg = function(msg, options) {
-        if(options === undefined || options.log === undefined || options.log) console.log(msg);
-    };
 
     var verboseMsg = function(msg, options) {
         if(options !== undefined && options.verbose) console.log(msg);
@@ -59,7 +66,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         });
     };
 
-    var dropIndexes = function(indexesToDrop, collection, callback) {
+    var dropIndexes = function(indexesToDrop, collection, callback) {//TODO: inspire your code from
 
         var tasks = [];
 
@@ -72,7 +79,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                 collection.dropIndex(indexToDrop.key, function(err) {
 
                     err ? eventHandler.emit("error", err) :
-                        eventHandler.emit("droppedIndex", collection, indexToDrop.name, indexToDrop, options);
+                        eventHandler.emit("droppedIndex", collection, indexToDrop, options);
 
                     _callback();
                 });
@@ -99,10 +106,10 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
                 var optionsInCreation = getOptionsFromCleanIndex(indexToCreate);
 
-                collection.createIndex(indexToCreate.key, optionsInCreation, function(err, indexName) {
+                collection.createIndex(indexToCreate.key, optionsInCreation, function(err, indexName) {//TODO: getIndex(indexName) pour avoir l'index créé
 
                     err ? eventHandler.emit("error", err) :
-                        eventHandler.emit("createdIndex", collection, indexName, indexToCreate, options);
+                        eventHandler.emit("createdIndex", collection, indexToCreate, options);
 
                     _callback();
                 });
@@ -185,30 +192,36 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         return _.omit(index, "key");
     };
 
-    var checkInitialRequirements = function(indexesArrayOrObject) {
+    var checkInitialRequirements = function(indexesArrayOrObject) {//TODO: wouldn't the last test be sufficient? If yes, don't make a function for that
         return indexesArrayOrObject !== undefined
             && indexesArrayOrObject !== null
             && indexesArrayOrObject instanceof Object;
     };
 
-    var checkRequirementsWhenCollection = function(indexesArrayOrObject) {
+    var checkRequirementsWhenCollection = function(indexesArrayOrObject) {//TODO: don't make a function for that
         return indexesArrayOrObject instanceof Array;
     };
 
     var checkRequirementsWhenDatabase = function(indexesArrayOrObject) {
         var check = true;
 
-        _.map(indexesArrayOrObject, function(value, collectionName) {
+        _.map(indexesArrayOrObject, function(value, collectionName) {//todo: could have been replaced with one-liner _.some(). But seems better to thow inside loop. If we don't use the output of loop, use forEach instead of map.
             if(!(value instanceof Array) || typeof collectionName !== "string" || collectionName.length === 0) check = false;
         });
 
         return check;
     };
 
+    // By initializing an index, we can call collection.indexes at the beginning of updateOneCollection.
+    // So we create the main index (normally created by default).
     var ensureIndexExistence = function(collection, callback) {
         collection.createIndex({_id: 1}, function(err) {
             callback(err);
         });
+    };
+
+    var done = function() {
+        eventHandler.emit("done");
     };
 
     // Start point of the function syncIndexesOneCollection
@@ -241,7 +254,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                     }
                 ],
                 // Errors are handled in functions dropIndexes and createIndex (simply logging them)
-                function() {
+                function() {//TODO: insert callback directly
                     callback();
                 }
             );
@@ -249,71 +262,61 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     };
 
     var updateCollectionOrDatabase = function(indexesArrayOrObject, dbOrCollection) {
-
-        //Check the first two arguments (obligatory)
-        assert(checkInitialRequirements(indexesArrayOrObject), "Your first argument is not valid. Please refer to the documentation.");
-        assert(dbOrCollection instanceof require("mongodb").Collection
-            || dbOrCollection instanceof require("mongodb").Db,
-            "Sorry, the second argument given isn't a collection, neither a database.");
-
         if(dbOrCollection instanceof require("mongodb").Collection) {
-            assert(checkRequirementsWhenCollection(indexesArrayOrObject), "Your second argument is a collection, but the first one doesn't respect the norm. Please refer to the documentation.");
+            assert(isArrayOfIndexes(indexesArrayOrObject), "Your second argument is a collection, so your first argument must be an array of indexes");
 
-            assert(allIndexesHaveAKey(indexesArrayOrObject), "Your array has at least one index without the 'key' property.");
-
-            // By initializing an index, we can call collection.indexes at the beginning of updateOneCollection.
-            // So we create the main index (normally created by default).
-            async.series(
-                [
-                    function(_callback) {
-                        ensureIndexExistence(dbOrCollection, _callback);
-                    }
-                ],
-                function(err) {
-                    assert.equal(err, null, "Sorry, an unexpected error happened when creating/ensuring the default index _id_.");
-                    var done = function() {
-                        eventHandler.emit("done")
-                    };
-                    updateOneCollection(indexesArrayOrObject, dbOrCollection, done);
+            async.series([
+                function(callback) {
+                    ensureIndexExistence(dbOrCollection, callback);
+                },
+                function(callback) {
+                    updateOneCollection(indexesArrayOrObject, dbOrCollection, callback);
                 }
-            )
+            ], done);
         }
         else if(dbOrCollection instanceof require("mongodb").Db) {
-            assert(checkRequirementsWhenDatabase(indexesArrayOrObject), "Your second argument is a database, but the first one doesn't respect the norm. Please refer to the documentation.");
+            assert(_.isPlainObject(indexesArrayOrObject) && _.every(indexesArrayOrObject, isArrayOfIndexes), "Your second argument is a database, so your first argument must be an object where keys are collection and values are arrays of indexes");
 
-            // Create array of collection updates
-            var tasks = [];
+            //// Create array of collection updates
+            //var tasks = [];
+            //
+            //_.map(indexesArrayOrObject, function(value, collectionName) {
+            //
+            //    assert(allIndexesHaveAKey(value), "Your object has at least one index without the 'key' property.");
+            //
+            //    tasks.push(function(_callback) {
+            //        dbOrCollection.createCollection(collectionName, function(err) {
+            //            if(err) {
+            //                eventHandler.emit("error", err);
+            //            }
+            //            else {
+            //                updateOneCollection(value, dbOrCollection.collection(collectionName), _callback);
+            //            }
+            //        });
+            //    });
+            //});
+            //
+            //// TODO: Update collections asynchronously. Problem: messages are messy with different collections
+            //async.series(
+            //    tasks,
+            //    function() {
+            //        eventHandler.emit("done");
+            //    }
+            //);
 
-            _.map(indexesArrayOrObject, function(value, collectionName) {
-
-                assert(allIndexesHaveAKey(value), "Your object has at least one index without the 'key' property.");
-
-                tasks.push(function(_callback) {
-                    dbOrCollection.createCollection(collectionName, function(err) {
-                        if(err) {
-                            eventHandler.emit("error", err);
-                        }
-                        else {
-                            updateOneCollection(value, dbOrCollection.collection(collectionName), _callback);
-                        }
-                    });
+            async.forEachOf(indexesArrayOrObject, function(value, collectionName, callback) {
+                dbOrCollection.createCollection(collectionName, function(err) {
+                    if(err) eventHandler.emit("error", err);
+                    else updateOneCollection(value, dbOrCollection.collection(collectionName), callback);
                 });
-            });
-
-            // TODO: Update collections asynchronously. Problem: messages are messy with different collections
-            async.series(
-                tasks,
-                function() {
-                    eventHandler.emit("done");
-                }
-            );
+            }, done);
         }
+        else throw new Error("The second argument must be a mongo collection or database");
     };
 
     updateCollectionOrDatabase(indexesArrayOrObject, dbOrCollection);
 
     return eventHandler;
 };
-
 
 module.exports = syncIndexes;

@@ -14,42 +14,30 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
     // Handlers
 
-    if(options === undefined || options.log === undefined || options.log) {
-        eventHandler.on("dropIndex", function(collection, index) {
-            console.log("Dropping index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...");
-        });
+    eventHandler.on("dropIndex", function(collection, index, options) {
+        eventMsg("Dropping index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...", options)
+    });
 
-        eventHandler.on("createIndex", function(collection, index) {
-            console.log("Creating index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...");
-        });
+    eventHandler.on("createIndex", function(collection, index, options) {
+        eventMsg("Creating index " + JSON.stringify(index.key) + " in collection " + collection.s.name + "...", options);
+    });
 
-        eventHandler.on("droppedIndex", function(collection, name, index) {
-            console.log("Done. Index dropped has name " + name);
+    eventHandler.on("droppedIndex", function(collection, name, index, options) {
+        eventMsg("Done. Index dropped has name " + name, options);
 
-            if(options !== undefined && options.verbose) {
-                console.log("[VERBOSE] Index is:");
-                console.log(JSON.stringify(index, null, 2));
-            }
+        verboseMsg("[VERBOSE] Index dropped is:\n" + JSON.stringify(index, null, 2) + "\n", options);
+    });
 
-            console.log();
-        });
+    eventHandler.on("createdIndex", function(collection, name, index, options) {
+        eventMsg("Done. Index created has name " + name, options);
 
-        eventHandler.on("createdIndex", function(collection, name, index) {
-            console.log("Done. Index created has name " + name);
-
-            if(options !== undefined && options.verbose) {
-                console.log("[VERBOSE] Index is:");
-                console.log(JSON.stringify(index, null, 2));
-            }
-
-            console.log();
-        });
-    }
+        verboseMsg("[VERBOSE] Index created is:\n" + JSON.stringify(index, null, 2) + "\n", options);
+    });
 
     // This listener can't be inside the "if" above: the minor errors would stop the program flow because of
     // the error listener by default.
     eventHandler.on("error", function(err) {
-        if(options === undefined || options.log === undefined || options.log) console.log(err);
+        eventMsg(err); //TODO
     });
 
     eventHandler.on("done", function() {
@@ -58,6 +46,14 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     });
 
     // -- Handlers
+
+    var eventMsg = function(msg, options) {
+        if(options === undefined || options.log === undefined || options.log) console.log(msg);
+    };
+
+    var verboseMsg = function(msg, options) {
+        if(options !== undefined && options.verbose) console.log(msg);
+    };
 
     var cleanIndexes = function(indexesToClean, dirty) {
         return _.map(indexesToClean, function(indexToClean) {
@@ -73,7 +69,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
 
             tasks.push(function(_callback) {
 
-                eventHandler.emit("dropIndex", collection, indexToDrop);
+                eventHandler.emit("dropIndex", collection, indexToDrop, options);
 
                 collection.dropIndex(indexToDrop.key, function(err) {
 
@@ -81,7 +77,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                         eventHandler.emit("error", err);
                     }
                     else {
-                        eventHandler.emit("droppedIndex", collection, indexToDrop.name, indexToDrop);
+                        eventHandler.emit("droppedIndex", collection, indexToDrop.name, indexToDrop, options);
                     }
 
 
@@ -106,17 +102,17 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         _.map(indexesToCreate, function(indexToCreate) {
             tasks.push(function(_callback) {
 
-                eventHandler.emit("createIndex", collection, indexToCreate);
+                eventHandler.emit("createIndex", collection, indexToCreate, options);
 
-                var options = getOptionsFromCleanIndex(indexToCreate);
+                var optionsInCreation = getOptionsFromCleanIndex(indexToCreate);
 
-                collection.createIndex(indexToCreate.key, options, function(err, indexName) {
+                collection.createIndex(indexToCreate.key, optionsInCreation, function(err, indexName) {
 
                     if(err) {
                         eventHandler.emit("error", err);
                     }
                     else {
-                        eventHandler.emit("createdIndex", collection, indexName, indexToCreate);
+                        eventHandler.emit("createdIndex", collection, indexName, indexToCreate, options);
                     }
 
                     _callback();
@@ -227,7 +223,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
     };
 
     // Start point of the function syncIndexesOneCollection
-    var updateOneCollection = function(indexesArray, collection, options, callback) {
+    var updateOneCollection = function(indexesArray, collection, callback) {
         collection.indexes(function(err, indexesCollection) {
             if(err) {
                 eventHandler.emit("error", err);
@@ -263,7 +259,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         });
     };
 
-    var updateCollectionOrDatabase = function(indexesArrayOrObject, dbOrCollection, options) {
+    var updateCollectionOrDatabase = function(indexesArrayOrObject, dbOrCollection) {
 
         //Check the first two arguments (obligatory)
         assert(checkInitialRequirements(indexesArrayOrObject), "Your first argument is not valid. Please refer to the documentation.");
@@ -289,7 +285,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                     var done = function() {
                         eventHandler.emit("done")
                     };
-                    updateOneCollection(indexesArrayOrObject, dbOrCollection, options, done);
+                    updateOneCollection(indexesArrayOrObject, dbOrCollection, done);
                 }
             )
         }
@@ -309,7 +305,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
                             eventHandler.emit("error", err);
                         }
                         else {
-                            updateOneCollection(value, dbOrCollection.collection(collectionName), options, _callback);
+                            updateOneCollection(value, dbOrCollection.collection(collectionName), _callback);
                         }
                     });
                 });
@@ -325,7 +321,7 @@ var syncIndexes = function(indexesArrayOrObject, dbOrCollection, options, mainCa
         }
     };
 
-    updateCollectionOrDatabase(indexesArrayOrObject, dbOrCollection, options);
+    updateCollectionOrDatabase(indexesArrayOrObject, dbOrCollection);
 
     return eventHandler;
 };

@@ -4,8 +4,12 @@
   "author": "Danilo Augusto <daniloaugusto.ita16@gmail.com>",
   "contributors": [
     {
-      "name": "Gilles Henaux",
-      "email": "gill.henaux@gmail.com"
+		"name": "Benoit Richert",
+		"email": "github@natura-rerum.com"
+    },
+    {
+		"name": "Gilles Henaux",
+		"email": "gill.henaux@gmail.com"
     }
   ],
   "description": "Synchronize the indexes of mongodb collections with a list of index objects, structured as the mongo shell output.",

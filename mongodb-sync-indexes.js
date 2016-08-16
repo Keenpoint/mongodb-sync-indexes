@@ -3,7 +3,7 @@ var _ = require("lodash"),
     events = require("events"),
     assert = require("assert");
 
-var toIgnoreInArray = ["background", "dropUps"],
+var toIgnoreInArray = ["background", "dropDups", "v"],
     toIgnoreInDatabase = ["v", "ns"],
     toIgnoreIfUndefined = ["name"];
 

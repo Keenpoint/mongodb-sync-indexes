@@ -1,11 +1,9 @@
 {
   "name": "mongodb-sync-indexes",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "Danilo Augusto <daniloaugusto.ita16@gmail.com>",
   "contributors": [
     {
-      "name": "Benoit Richert",
-      "email": "github@natura-rerum.com",
       "name": "Gilles Henaux",
       "email": "gill.henaux@gmail.com"
     }

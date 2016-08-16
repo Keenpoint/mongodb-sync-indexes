@@ -5,7 +5,9 @@
   "contributors": [
     {
       "name": "Benoit Richert",
-      "email": "github@natura-rerum.com"
+      "email": "github@natura-rerum.com",
+      "name": "Gilles Henaux",
+      "email": "gill.henaux@gmail.com"
     }
   ],
   "description": "Synchronize the indexes of mongodb collections with a list of index objects, structured as the mongo shell output.",
@@ -32,11 +34,11 @@
     "url": "https://github.com/Keenpoint/mongodb-sync-indexes/issues"
   },
   "dependencies": {
-    "async": "^1.4.0",
-    "lodash": "^3.10.0",
-    "mongodb": "^2.0.39"
+    "async": "^2.0.1",
+    "lodash": "^4.15.0",
+    "mongodb": "^2.2.6"
   },
   "devDependencies": {
-    "mocha": "^2.2.5"
+    "mocha": "^3.0.2"
   }
 }
